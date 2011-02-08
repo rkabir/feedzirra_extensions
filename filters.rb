@@ -1,6 +1,6 @@
 require 'feedzirra'
 
-module FilterProcs
+module FeedzirraExtensions
   # mix this into feed, or whatever else has an entries object
   
   def find_all_by_string(string)
@@ -52,6 +52,6 @@ end
   Feedzirra::Parser::ITunesRSS, Feedzirra::Parser::RSS
 ].each do |klass|
   klass.class_eval do
-    include FilterProcs
+    include FeedzirraExtensions
   end
 end
