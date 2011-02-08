@@ -1,17 +1,6 @@
 require 'feedzirra'
 
-module FeedzirraFeedExtensions
-  def to_rss
-    # TODO: Need to implement conversion back to RSS XML
-    # Convert the feed back to RSS so you can use it elsewhere?
-    # Ideally you'd cache this so maybe this should be at the Rails level
-  end
-  
-  def merge
-    # TODO: Need to implement combining of multiple feeds into one feed object.
-    # Not sure how updating will work
-  end
-end
+# TODO: better namespacing
 
 module FeedzirraParserExtensions
   # mix this into feed, or whatever else has an entries object
@@ -56,9 +45,46 @@ module FeedzirraParserExtensions
   def map_to_images
     puts "map this feed to images"
   end
+  
+  def to_rss
+    # TODO: Need to implement conversion back to RSS XML
+    # Convert the feed back to RSS so you can use it elsewhere?
+    # Ideally you'd cache this so maybe this should be at the Rails level
+    # Probably want to use a templating language here
+  end
 end
 
-# TODO: reopen the Parser classes
+module Feedzirra
+  class MergedFeed
+    def self.fetch_and_parse(title, url, *feed_urls)
+      # Create a new feed parser instance from the given feeds,
+      # using your title and url
+      feeds = ::Feedzirra::Feed.fetch_and_parse(feed_urls)
+      entries = []
+      feeds.each_pair do |k,v|
+        # Brace against response errors
+        next if v.is_a?(Fixnum)
+        entries = entries + v.entries
+      end
+      # Sort by date (which one?)
+      return MergedParser.new(title, url, entries)
+    end
+  end
+
+  module Parser
+    class MergedParser
+      # title, url, entries
+      include FeedzirraParserExtensions
+      attr_accessor :url, :title, :entries
+      def initialize(title, url, entries)
+        self.url = url
+        self.title = title
+        self.entries = entries
+      end
+    end
+  end
+end
+
 # You would do this for any other feed parser you implement
 # Or if you switch backends from Feedzirra you can mix in appropriately
 [
