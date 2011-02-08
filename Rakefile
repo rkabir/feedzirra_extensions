@@ -15,8 +15,8 @@ Jeweler::Tasks.new do |gem|
   gem.name = "feedzirra_extensions"
   gem.homepage = "http://github.com/rkabir/feedzirra_extensions"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = "Extensions to Feedzirra"
+  gem.description = "No really, extensions to Feedzirra"
   gem.email = "ayliang@gmail.com"
   gem.authors = ["Alvin Liang", "Ryan Kabir"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,
