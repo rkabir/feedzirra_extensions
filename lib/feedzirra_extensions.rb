@@ -66,13 +66,16 @@ module Feedzirra
         next if v.is_a?(Fixnum)
         entries = entries + v.entries
       end
-      # Sort by date (which one?)
+      # Sort by date published
+      entries.sort! { |x,y| y.published <=> x.published }
       return MergedParser.new(title, url, entries)
     end
   end
 
   module Parser
     class MergedParser
+      # Not really a parser, just an object that looks like a
+      # Feedzirra::Parser::XX object
       # title, url, entries
       include FeedzirraParserExtensions
       attr_accessor :url, :title, :entries
