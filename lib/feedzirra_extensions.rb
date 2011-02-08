@@ -1,7 +1,21 @@
 require 'feedzirra'
 
-module FeedzirraExtensions
+module FeedzirraFeedExtensions
+  def to_rss
+    # TODO: Need to implement conversion back to RSS XML
+    # Convert the feed back to RSS so you can use it elsewhere?
+    # Ideally you'd cache this so maybe this should be at the Rails level
+  end
+  
+  def merge
+    # TODO: Need to implement combining of multiple feeds into one feed object.
+    # Not sure how updating will work
+  end
+end
+
+module FeedzirraParserExtensions
   # mix this into feed, or whatever else has an entries object
+  # TODO: Need to learn to copy feeds instead of modifying entries in place
   
   def find_all_by_string(string)
     self.entries = self.entries.find_all { |entry|
@@ -52,6 +66,6 @@ end
   Feedzirra::Parser::ITunesRSS, Feedzirra::Parser::RSS
 ].each do |klass|
   klass.class_eval do
-    include FeedzirraExtensions
+    include FeedzirraParserExtensions
   end
 end
