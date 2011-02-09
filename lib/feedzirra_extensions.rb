@@ -102,7 +102,7 @@ module Feedzirra
   end
 end
 
-# You would do this for any other feed parser you implement
+# Mix in with Feedzirra parsers
 # Or if you switch backends from Feedzirra you can mix in appropriately
 [
   Feedzirra::Parser::Atom, Feedzirra::Parser::AtomFeedBurner,
