@@ -1,8 +1,6 @@
 require 'feedzirra'
 require 'nokogiri'
 
-# TODO: better namespacing
-
 module Feedzirra
   module FeedzirraParserExtensions
     # mix this into feed, or whatever else has an entries object
@@ -86,6 +84,10 @@ module Feedzirra
 
       # TODO: what about etags, last modified, etc?
       # TODO: if it's filtered, then checking for updates will be different
+      # I think you have to keep all the individal feeds' 
+      # etags and last modified times around in a separate
+      # data structure and override the methods that check for updates
+
       # include ::FeedZirra::FeedUtilities
       # include ::FeedZirra::FeedzirraParserExtensions
       include FeedUtilities
