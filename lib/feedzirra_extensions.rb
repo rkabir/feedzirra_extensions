@@ -5,6 +5,9 @@ module Feedzirra
   module FeedzirraParserExtensions
     # mix this into feed, or whatever else has an entries object
 
+    # Need this or you can't save with ActiveRecord
+    attr_accessor :etag, :last_modified
+
     def find_all_by_string(string)
       entries = self.entries.find_all { |entry|
         # TODO: Should not consider any embedded HTML
