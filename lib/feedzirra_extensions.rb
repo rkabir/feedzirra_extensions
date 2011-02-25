@@ -5,10 +5,47 @@ module Feedzirra
   module FeedzirraParserExtensions
     # mix this into feed, or whatever else has an entries object
 
-    # Need this or you can't save with ActiveRecord
-    attr_accessor :etag, :last_modified
+    def find_all_where(options = {})
+      entries = self.entries
+      if options['string']
+        entries = entries.find_all { |entry| 
+        }
+      end
+      if options['author']
+        entries = entries.find_all { |entry| 
+        }
+      end
+      if options['has_image']
+        entries = entries.find_all { |entry| 
+        }
+      end
+      if options['has_attachment']
+        entries = entries.find_all { |entry| 
+        }
+      end
+    end
+    
+    def reject_where(options = {})
+      entries = self.entries
+      if options['string']
+        entries = entries.reject { |entry| 
+        }
+      end
+      if options['author']
+        entries = entries.reject { |entry| 
+        }
+      end
+      if options['has_image']
+        entries = entries.reject { |entry| 
+        }
+      end
+      if options['has_attachment']
+        entries = entries.reject { |entry| 
+        }
+      end
+    end
 
-    def find_all_by_string(string)
+    def find_all_by_string(options = {})
       entries = self.entries.find_all { |entry|
         # TODO: Should not consider any embedded HTML
         # TODO: Should consider any other attributes you care about
@@ -54,6 +91,14 @@ module Feedzirra
       puts "map this feed to images"
       # call find_all_with_image, then strip everything but the images
     end
+    
+    def remove_images
+      puts "map this feed to the same feed without images"
+    end
+    
+    def attachments
+      puts "get only the attachments"
+    end
 
     def to_rss
       # TODO: Need to implement conversion back to RSS XML
@@ -95,7 +140,7 @@ module Feedzirra
       # include ::FeedZirra::FeedzirraParserExtensions
       include FeedUtilities
       include FeedzirraParserExtensions
-      attr_accessor :url, :title, :entries
+      attr_accessor :title, :url, :feed_url, :entries, :etag, :last_modified
       def initialize(title, url, entries)
         self.url = url
         self.title = title
