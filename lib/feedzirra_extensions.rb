@@ -89,7 +89,8 @@ module Feedzirra
       entries = self.entries.find_all { |entry|
         # TODO: Should not consider any embedded HTML
         # TODO: Should consider any other attributes you care about
-        entry.title.include?(string) || entry.content.include?(string)
+        entry.title.include?(string) || entry.summary.include?(string) ||
+          entry.content.include?(string)
       }
       return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
@@ -98,13 +99,14 @@ module Feedzirra
       entries = self.entries.reject { |entry|
         # TODO: Should not consider any embedded HTML
         # TODO: Should consider any other attributes you care about
-        entry.title.include?(string) || entry.content.include?(string)
+        entry.title.include?(string) || entry.summary.include?(string) ||
+          entry.content.include?(string)
       }
       return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
 
     def find_all_by_author(author_name)
-      entries = self.entries.find_all { |entry| 
+      entries = self.entries.find_all { |entry|
         entry.author.include?(author_name)
       }
       return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
@@ -127,7 +129,7 @@ module Feedzirra
       # parse as HTML using Nokogiri, then see if there are any img tags.
     end
   end
-  
+
   class MergedFeed
     def self.fetch_and_parse(title, url, *feed_urls)
       # Create a new feed parser instance from the given feeds,
@@ -152,7 +154,7 @@ module Feedzirra
 
       # TODO: what about etags, last modified, etc?
       # TODO: if it's filtered, then checking for updates will be different
-      # I think you have to keep all the individal feeds' 
+      # I think you have to keep all the individal feeds'
       # etags and last modified times around in a separate
       # data structure and override the methods that check for updates
 
