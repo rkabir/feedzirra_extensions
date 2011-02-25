@@ -10,6 +10,7 @@ module Feedzirra
       if options['string']
         entries = entries.find_all { |entry|
           entry.title.include?(options['string']) ||
+            entry.summary.include?(options['string']) ||
             entry.content.include?(options['string'])
         }
       end
@@ -36,6 +37,7 @@ module Feedzirra
       if options['string']
         entries = entries.reject { |entry|
           entry.title.include?(options['string']) ||
+            entry.summary.include?(options['string']) ||
             entry.content.include?(options['string'])
         }
       end
