@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alvin Liang", "Ryan Kabir"]
-  s.date = %q{2011-02-09}
+  s.date = %q{2011-02-23}
   s.description = %q{No really, extensions to Feedzirra}
   s.email = %q{ayliang@gmail.com}
   s.extra_rdoc_files = [
@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION",
+    "feedzirra_extensions.gemspec",
     "lib/feedzirra_extensions.rb",
     "test/helper.rb",
     "test/test_feedzirra_extensions.rb"
