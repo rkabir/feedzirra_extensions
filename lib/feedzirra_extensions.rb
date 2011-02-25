@@ -8,19 +8,25 @@ module Feedzirra
     def find_all_where(options = {})
       entries = self.entries
       if options['string']
-        entries = entries.find_all { |entry| 
+        entries = entries.find_all { |entry|
+          entry.title.include?(options['string']) ||
+            entry.content.include?(options['string'])
         }
       end
       if options['author']
         entries = entries.find_all { |entry| 
+          entry.author.include?(options['author'])
         }
       end
       if options['has_image']
         entries = entries.find_all { |entry| 
+          html = Nokogiri::HTML(entry.content)
+          html.search("img").length > 0
         }
       end
       if options['has_attachment']
-        entries = entries.find_all { |entry| 
+        entries = entries.find_all { |entry|
+          # TODO
         }
       end
     end
@@ -28,23 +34,57 @@ module Feedzirra
     def reject_where(options = {})
       entries = self.entries
       if options['string']
-        entries = entries.reject { |entry| 
+        entries = entries.reject { |entry|
+          entry.title.include?(options['string']) ||
+            entry.content.include?(options['string'])
         }
       end
       if options['author']
-        entries = entries.reject { |entry| 
+        entries = entries.reject { |entry|
+          entry.author.include?(options['author'])
         }
       end
       if options['has_image']
-        entries = entries.reject { |entry| 
+        entries = entries.reject { |entry|
+          html = Nokogiri::HTML(entry.content)
+          html.search("img").length > 0 
         }
       end
       if options['has_attachment']
-        entries = entries.reject { |entry| 
+        entries = entries.reject { |entry|
+          # TODO
         }
       end
     end
+    
+    def map_to_images
+      puts "map this feed to images"
+      # call find_all_with_image, then strip everything but the images
+      # In entry content, do you have full HTML tags?
+    end
+    
+    def remove_images
+      puts "map this feed to the same feed without images"
+    end
+    
+    def map_to_attachments
+      puts "get only the attachments"
+      # Need attachment support first, though. Could do a link?
+    end
 
+    def to_rss
+      # TODO: Need to implement conversion back to RSS XML
+      # Convert the feed back to RSS so you can use it elsewhere?
+      # Ideally you'd cache this so maybe this should be at the Rails level
+      # Probably want to use a templating language here
+    end
+
+    ###
+    ### These old find_all_by/reject_by methods will be deprecated
+    ### and it will be more like activerecord, see above.
+    ### We could go back and implement method_missing, but that might be ugly
+    ### as a mixin with AR
+    ###
     def find_all_by_string(options = {})
       entries = self.entries.find_all { |entry|
         # TODO: Should not consider any embedded HTML
@@ -85,26 +125,6 @@ module Feedzirra
     def reject_with_image
       puts "remove entries with images"
       # parse as HTML using Nokogiri, then see if there are any img tags.
-    end
-
-    def map_to_images
-      puts "map this feed to images"
-      # call find_all_with_image, then strip everything but the images
-    end
-    
-    def remove_images
-      puts "map this feed to the same feed without images"
-    end
-    
-    def attachments
-      puts "get only the attachments"
-    end
-
-    def to_rss
-      # TODO: Need to implement conversion back to RSS XML
-      # Convert the feed back to RSS so you can use it elsewhere?
-      # Ideally you'd cache this so maybe this should be at the Rails level
-      # Probably want to use a templating language here
     end
   end
   
