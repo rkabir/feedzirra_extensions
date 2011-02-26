@@ -36,9 +36,11 @@ module Feedzirra
           entry
         }
       end
+      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
     
     def map_entries
+      entries = self.entries
       if options['images']
         entries = entries.map { |entry| 
           html = Nokogiri::HTML(entry.content)
@@ -52,9 +54,11 @@ module Feedzirra
       end
       if options['video']
       end
+      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
     
     def remove_entries
+      entries = self.entries
       if options['images']
       end
       if options['attachments']
@@ -63,6 +67,7 @@ module Feedzirra
       end
       if options['video']
       end
+      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
 
     ###
