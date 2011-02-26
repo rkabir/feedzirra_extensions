@@ -5,80 +5,62 @@ module Feedzirra
   module FeedzirraParserExtensions
     # mix this into feed, or whatever else has an entries object
 
-    def find_all_where(options = {})
+    def where(options = {})
       entries = self.entries
-      if options['string']
-        entries = entries.find_all { |entry|
+      method = :find_all
+      if options['not']
+        method = :reject
+      end
+      if options['text']
+        entries = entries.send(method, lambda { |entry|
           entry.title.include?(options['string']) ||
             entry.summary.include?(options['string']) ||
             entry.content.include?(options['string'])
-        }
+        })
       end
       if options['author']
-        entries = entries.find_all { |entry| 
+        entries = entries.send(method, lambda { |entry| 
           entry.author.include?(options['author'])
-        }
+        })
       end
       if options['has_image']
-        entries = entries.find_all { |entry| 
+        entries = entries.send(method, lambda { |entry| 
           html = Nokogiri::HTML(entry.content)
           html.search("img").length > 0
-        }
+        })
       end
       if options['has_attachment']
-        entries = entries.find_all { |entry|
+        entries = entries.send(method, lambda { |entry|
           # TODO
-        }
+        })
       end
     end
     
-    def reject_where(options = {})
-      entries = self.entries
-      if options['string']
-        entries = entries.reject { |entry|
-          entry.title.include?(options['string']) ||
-            entry.summary.include?(options['string']) ||
-            entry.content.include?(options['string'])
-        }
-      end
-      if options['author']
-        entries = entries.reject { |entry|
-          entry.author.include?(options['author'])
-        }
-      end
-      if options['has_image']
-        entries = entries.reject { |entry|
+    def map
+      if options['images']
+        entries = entries.map { |entry| 
           html = Nokogiri::HTML(entry.content)
-          html.search("img").length > 0 
+          html.search("img")
+          # TODO: actually build up the document
         }
       end
-      if options['has_attachment']
-        entries = entries.reject { |entry|
-          # TODO
-        }
+      if options['attachments']
+      end
+      if options['audio']
+      end
+      if options['video']
       end
     end
     
-    def map_to_images
-      puts "map this feed to images"
-      # call find_all_with_image, then strip everything but the images
-      # In entry content, do you have full HTML tags?
-    end
-    
-    def remove_images
-      puts "map this feed to the same feed without images"
-    end
-    
-    def map_to_attachments
-      puts "get only the attachments"
-      # Need attachment support first, though. Could do a link?
-    end
-
-    def to_rss
-      # TODO: Need to implement conversion back to RSS XML
-      # Convert the feed back to RSS so you can use it elsewhere?
-      # Ideally you'd cache this so maybe this should be at the Rails level
-      # Probably want to use a templating language here
+    def remove
+      if options['images']
+      end
+      if options['attachments']
+      end
+      if options['audio']
+      end
+      if options['video']
+      end
     end
 
     ###
