@@ -6,47 +6,49 @@ module Feedzirra
     # mix this into feed, or whatever else has an entries object
 
     def where_entries(options = {})
+      return self if options == {}
       entries = self.entries
       method = :find_all
       if options['not']
         method = :reject
       end
       if options['text']
-        entries = entries.send(method) { |entry|
+        entries = entries.send(method) do |entry|
           (!entry.title.nil? && entry.title.include?(options['string'])) ||
             (!entry.summary.nil? && entry.summary.include?(options['string'])) ||
             (!entry.content.nil? && entry.content.include?(options['string']))
-        }
+        end
       end
       if options['author']
-        entries = entries.send(method) { |entry| 
+        entries = entries.send(method) do |entry| 
           !entry.author.nil? && entry.author.include?(options['author'])
-        }
+        end
       end
       if options['has_image']
-        entries = entries.send(method) { |entry|
+        entries = entries.send(method) do |entry|
           # TODO: What happens if parse fails?
           html = Nokogiri::HTML(entry.content)
           html.search("img").length > 0
-        }
+        end
       end
       if options['has_attachment']
-        entries = entries.send(method) { |entry|
+        entries = entries.send(method) do |entry|
           # TODO
           entry
-        }
+        end
       end
       return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
     
-    def map_entries
+    def map_entries(options = {})
+      return self if options = {}
       entries = self.entries
       if options['images']
-        entries = entries.map { |entry| 
+        entries = entries.map do |entry| 
           html = Nokogiri::HTML(entry.content)
           html.search("img")
           # TODO: actually build up the document
-        }
+        end
       end
       if options['attachments']
       end
@@ -57,7 +59,8 @@ module Feedzirra
       return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
     
-    def remove_entries
+    def remove_entries(options = {})
+      return self if options = {}
       entries = self.entries
       if options['images']
       end
