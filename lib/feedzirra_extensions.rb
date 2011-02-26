@@ -10,29 +10,44 @@ module Feedzirra
       entries = self.entries
       if options['text']
         entries = entries.find_all do |entry|
-          title = entry.title || ""
-          summary = entry.summary || ""
-          content = entry.content || ""
-          title.include?(options['text']) ||
-            summary.include?(options['text']) ||
-            content.include?(options['text'])
+          title = entry.title.downcase || ""
+          summary = entry.summary.downcase || ""
+          content = entry.content.downcase || ""
+          text = options['text'].downcase || ""
+          title.include?(text) ||
+            summary.include?(text) ||
+            content.include?(text)
         end
       end
       if options['author']
         entries = entries.find_all do |entry| 
-          author = entry.author || ""
-          entry.author.include?(options['author'])
+          author = entry.author.downcase || ""
+          text = options['author'].downcase || ""
+          author.include?(text)
         end
       end
       if options['has_image']
         entries = entries.find_all do |entry|
-          # TODO: What happens if parse fails?
-          html = Nokogiri::HTML(entry.content)
+          begin
+            html = Nokogiri::HTML(entry.content)
+          rescue
+            return true
+          end
           html.search("img").length > 0
         end
       end
+      if options['has_link']
+        entries = entries.find_all do |entry|
+          begin
+            html = Nokogiri::HTML(entry.content)
+          rescue
+            return true
+          end
+          links = html.search("a[href]").length > 0
+        end
+      end
       if options['has_attachment']
-        entries = entries.send(method) do |entry|
+        entries = entries.find_all do |entry|
           # TODO
           entry
         end
@@ -45,27 +60,44 @@ module Feedzirra
       entries = self.entries
       if options['text']
         entries = entries.reject do |entry|
-          title = entry.title || ""
-          summary = entry.summary || ""
-          content = entry.content || ""
-          title.include?(options['text']) ||
-            summary.include?(options['text']) ||
-            content.include?(options['text'])
+          entries = entries.find_all do |entry|
+            title = entry.title.downcase || ""
+            summary = entry.summary.downcase || ""
+            content = entry.content.downcase || ""
+            text = options['text'].downcase || ""
+            title.include?(text) ||
+              summary.include?(text) ||
+              content.include?(text)
         end
       end
       if options['author']
         entries = entries.reject do |entry| 
-          author = entry.author || ""
-          entry.author.include?(options['author'])
+          author = entry.author.downcase || ""
+          text = options['author'].downcase || ""
+          author.include?(text)
         end
       end
       if options['has_image']
         entries = entries.reject do |entry|
-          # TODO: What happens if parse fails?
-          html = Nokogiri::HTML(entry.content)
+          begin
+            html = Nokogiri::HTML(entry.content)
+          rescue
+            return true
+          end
           html.search("img").length > 0
         end
       end
+      if options['has_link']
+        entries = entries.reject do |entry|
+          entries = entries.reject do |entry|
+            begin
+              html = Nokogiri::HTML(entry.content)
+            rescue
+              return true
+            end
+            links = html.search("a[href]").length > 0
+          end
+        end
       if options['has_attachment']
         entries = entries.send(method) do |entry|
           # TODO
@@ -83,7 +115,10 @@ module Feedzirra
           html = Nokogiri::HTML(entry.content)
           html.search("img")
           # TODO: actually build up the document
+          # new_entry = ?? Not sure which object
         end
+      end
+      if options['links']
       end
       if options['attachments']
       end
@@ -99,6 +134,8 @@ module Feedzirra
       entries = self.entries
       if options['images']
       end
+      if options['links']
+      end
       if options['attachments']
       end
       if options['audio']
@@ -107,57 +144,6 @@ module Feedzirra
       end
       return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
-
-    ###
-    ### These old find_all_by/reject_by methods will be deprecated
-    ### and it will be more like activerecord, see above.
-    ### We could go back and implement method_missing, but that might be ugly
-    ### as a mixin with AR
-    ###
-    def find_all_by_string(options = {})
-      entries = self.entries.find_all { |entry|
-        # TODO: Should not consider any embedded HTML
-        # TODO: Should consider any other attributes you care about
-        entry.title.include?(string) || entry.summary.include?(string) ||
-          entry.content.include?(string)
-      }
-      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
-    end
-
-    def reject_by_string(string)
-      entries = self.entries.reject { |entry|
-        # TODO: Should not consider any embedded HTML
-        # TODO: Should consider any other attributes you care about
-        entry.title.include?(string) || entry.summary.include?(string) ||
-          entry.content.include?(string)
-      }
-      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
-    end
-
-    def find_all_by_author(author_name)
-      entries = self.entries.find_all { |entry|
-        entry.author.include?(author_name)
-      }
-      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
-    end
-
-    def reject_by_author(author_name)
-      entries = self.entries.reject { |entry|
-        entry.author.include?(author_name)
-      }
-      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
-    end
-
-    def find_all_with_image
-      puts "leave only entries with images"
-      # parse as HTML using Nokogiri, then see if there are any img tags.
-    end
-
-    def reject_with_image
-      puts "remove entries with images"
-      # parse as HTML using Nokogiri, then see if there are any img tags.
-    end
-  end
 
   class MergedFeed
     def self.fetch_and_parse(title, url, *feed_urls)
