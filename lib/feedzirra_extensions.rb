@@ -8,24 +8,51 @@ module Feedzirra
     def where_entries(options = {})
       return self if options == {}
       entries = self.entries
-      method = :find_all
-      if options['not']
-        method = :reject
-      end
       if options['text']
-        entries = entries.send(method) do |entry|
+        entries = entries.find_all do |entry|
           (!entry.title.nil? && entry.title.include?(options['string'])) ||
             (!entry.summary.nil? && entry.summary.include?(options['string'])) ||
             (!entry.content.nil? && entry.content.include?(options['string']))
         end
       end
       if options['author']
-        entries = entries.send(method) do |entry| 
+        entries = entries.find_all do |entry| 
           !entry.author.nil? && entry.author.include?(options['author'])
         end
       end
       if options['has_image']
+        entries = entries.find_all do |entry|
+          # TODO: What happens if parse fails?
+          html = Nokogiri::HTML(entry.content)
+          html.search("img").length > 0
+        end
+      end
+      if options['has_attachment']
         entries = entries.send(method) do |entry|
+          # TODO
+          entry
+        end
+      end
+      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
+    end
+    
+    def where_entries_not(options = {})
+      return self if options == {}
+      entries = self.entries
+      if options['text']
+        entries = entries.reject do |entry|
+          (!entry.title.nil? && entry.title.include?(options['string'])) ||
+            (!entry.summary.nil? && entry.summary.include?(options['string'])) ||
+            (!entry.content.nil? && entry.content.include?(options['string']))
+        end
+      end
+      if options['author']
+        entries = entries.reject do |entry| 
+          !entry.author.nil? && entry.author.include?(options['author'])
+        end
+      end
+      if options['has_image']
+        entries = entries.reject do |entry|
           # TODO: What happens if parse fails?
           html = Nokogiri::HTML(entry.content)
           html.search("img").length > 0
