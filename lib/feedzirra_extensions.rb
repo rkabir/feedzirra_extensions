@@ -12,27 +12,28 @@ module Feedzirra
         method = :reject
       end
       if options['text']
-        entries = entries.send(method, lambda { |entry|
+        entries = entries.send(method) { |entry|
           entry.title.include?(options['string']) ||
             entry.summary.include?(options['string']) ||
             entry.content.include?(options['string'])
-        })
+        }
       end
       if options['author']
-        entries = entries.send(method, lambda { |entry| 
+        entries = entries.send(method) { |entry| 
           entry.author.include?(options['author'])
-        })
+        }
       end
       if options['has_image']
-        entries = entries.send(method, lambda { |entry| 
+        entries = entries.send(method) { |entry| 
           html = Nokogiri::HTML(entry.content)
           html.search("img").length > 0
-        })
+        }
       end
       if options['has_attachment']
-        entries = entries.send(method, lambda { |entry|
+        entries = entries.send(method) { |entry|
           # TODO
-        })
+          entry
+        }
       end
     end
     
