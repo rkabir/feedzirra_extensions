@@ -10,14 +10,18 @@ module Feedzirra
       entries = self.entries
       if options['text']
         entries = entries.find_all do |entry|
-          (!entry.title.nil? && entry.title.include?(options['string'])) ||
-            (!entry.summary.nil? && entry.summary.include?(options['string'])) ||
-            (!entry.content.nil? && entry.content.include?(options['string']))
+          title = entry.title || ""
+          summary = entry.summary || ""
+          content = entry.content || ""
+          title.include?(options['string']) ||
+            summary.include?(options['string']) ||
+            content.include?(options['string'])
         end
       end
       if options['author']
         entries = entries.find_all do |entry| 
-          !entry.author.nil? && entry.author.include?(options['author'])
+          author = entry.author || ""
+          entry.author.include?(options['author'])
         end
       end
       if options['has_image']
@@ -41,14 +45,18 @@ module Feedzirra
       entries = self.entries
       if options['text']
         entries = entries.reject do |entry|
-          (!entry.title.nil? && entry.title.include?(options['string'])) ||
-            (!entry.summary.nil? && entry.summary.include?(options['string'])) ||
-            (!entry.content.nil? && entry.content.include?(options['string']))
+          title = entry.title || ""
+          summary = entry.summary || ""
+          content = entry.content || ""
+          title.include?(options['string']) ||
+            summary.include?(options['string']) ||
+            content.include?(options['string'])
         end
       end
       if options['author']
         entries = entries.reject do |entry| 
-          !entry.author.nil? && entry.author.include?(options['author'])
+          author = entry.author || ""
+          entry.author.include?(options['author'])
         end
       end
       if options['has_image']
