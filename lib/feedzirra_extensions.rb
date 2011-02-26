@@ -157,7 +157,8 @@ module Feedzirra
       def initialize(title, url, entries)
         self.url = url
         self.title = title
-        self.entries = entries
+        # ensure this is an Array, or you can't do silly stuff like size()
+        self.entries = entries.to_a
       end
     end
   end
