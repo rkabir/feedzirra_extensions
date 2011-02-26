@@ -13,18 +13,19 @@ module Feedzirra
       end
       if options['text']
         entries = entries.send(method) { |entry|
-          entry.title.include?(options['string']) ||
-            entry.summary.include?(options['string']) ||
-            entry.content.include?(options['string'])
+          (!entry.title.nil? && entry.title.include?(options['string'])) ||
+            (!entry.summary.nil? && entry.summary.include?(options['string'])) ||
+            (!entry.content.nil? && entry.content.include?(options['string']))
         }
       end
       if options['author']
         entries = entries.send(method) { |entry| 
-          entry.author.include?(options['author'])
+          !entry.author.nil? && entry.author.include?(options['author'])
         }
       end
       if options['has_image']
-        entries = entries.send(method) { |entry| 
+        entries = entries.send(method) { |entry|
+          # TODO: What happens if parse fails?
           html = Nokogiri::HTML(entry.content)
           html.search("img").length > 0
         }
