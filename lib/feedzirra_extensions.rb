@@ -5,7 +5,7 @@ module Feedzirra
   module FeedzirraParserExtensions
     # mix this into feed, or whatever else has an entries object
 
-    def where(options = {})
+    def where_entries(options = {})
       entries = self.entries
       method = :find_all
       if options['not']
@@ -37,7 +37,7 @@ module Feedzirra
       end
     end
     
-    def map
+    def map_entries
       if options['images']
         entries = entries.map { |entry| 
           html = Nokogiri::HTML(entry.content)
@@ -53,7 +53,7 @@ module Feedzirra
       end
     end
     
-    def remove
+    def remove_entries
       if options['images']
       end
       if options['attachments']
