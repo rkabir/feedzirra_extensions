@@ -13,9 +13,9 @@ module Feedzirra
           title = entry.title || ""
           summary = entry.summary || ""
           content = entry.content || ""
-          title.include?(options['string']) ||
-            summary.include?(options['string']) ||
-            content.include?(options['string'])
+          title.include?(options['text']) ||
+            summary.include?(options['text']) ||
+            content.include?(options['text'])
         end
       end
       if options['author']
@@ -48,9 +48,9 @@ module Feedzirra
           title = entry.title || ""
           summary = entry.summary || ""
           content = entry.content || ""
-          title.include?(options['string']) ||
-            summary.include?(options['string']) ||
-            content.include?(options['string'])
+          title.include?(options['text']) ||
+            summary.include?(options['text']) ||
+            content.include?(options['text'])
         end
       end
       if options['author']
