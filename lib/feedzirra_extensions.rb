@@ -1,6 +1,6 @@
 require 'feedzirra'
 require 'nokogiri'
-require 'active_support'
+require 'activesupport'
 
 module Feedzirra
   module FeedzirraParserExtensions
