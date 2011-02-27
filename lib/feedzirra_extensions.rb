@@ -12,9 +12,9 @@ module Feedzirra
       entries = self.entries
       if options['text']
         entries = entries.find_all do |entry|
-          title = entry.title.downcase || ""
-          summary = entry.summary.downcase || ""
-          content = entry.content.downcase || ""
+          title = entry.title ? entry.title.downcase : ""
+          summary = entry.summary ? entry.summary.downcase : ""
+          content = entry.content ? entry.content.downcase : ""
           text = options['text'].downcase || ""
           title.include?(text) ||
             summary.include?(text) ||
@@ -63,9 +63,9 @@ module Feedzirra
       entries = self.entries
       if options['text']
         entries = entries.reject do |entry|
-          title = entry.title.downcase || ""
-          summary = entry.summary.downcase || ""
-          content = entry.content.downcase || ""
+          title = entry.title ? entry.title.downcase : ""
+          summary = entry.summary ? entry.summary.downcase : ""
+          content = entry.content ? entry.content.downcase : ""
           text = options['text'].downcase || ""
           title.include?(text) ||
             summary.include?(text) ||
