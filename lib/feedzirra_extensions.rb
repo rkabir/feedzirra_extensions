@@ -1,5 +1,6 @@
 require 'feedzirra'
 require 'nokogiri'
+require 'active_support'
 
 module Feedzirra
   module FeedzirraParserExtensions
@@ -7,6 +8,7 @@ module Feedzirra
 
     def where_entries(options = {})
       return self if options == {}
+      options = options.with_indifferent_access
       entries = self.entries
       if options['text']
         entries = entries.find_all do |entry|
@@ -57,6 +59,7 @@ module Feedzirra
     
     def where_entries_not(options = {})
       return self if options == {}
+      options = options.with_indifferent_access
       entries = self.entries
       if options['text']
         entries = entries.reject do |entry|
@@ -109,6 +112,7 @@ module Feedzirra
     
     def map_entries(options = {})
       return self if options = {}
+      options = options.with_indifferent_access
       entries = self.entries
       if options['images']
         entries = entries.map do |entry| 
@@ -131,6 +135,7 @@ module Feedzirra
     
     def remove_entries(options = {})
       return self if options = {}
+      options = options.with_indifferent_access
       entries = self.entries
       if options['images']
       end
