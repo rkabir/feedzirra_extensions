@@ -22,7 +22,7 @@ module Feedzirra
         end
       end
       if options['author']
-        entries = entries.find_all do |entry|
+        entries = entries.find_all do |entry| 
           author = entry.author.downcase || ""
           text = options['author'].downcase || ""
           author.include?(text)
@@ -56,7 +56,7 @@ module Feedzirra
       end
       return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
-
+    
     def where_entries_not(options = {})
       return self if options == {}
       options = options.with_indifferent_access
@@ -74,7 +74,7 @@ module Feedzirra
         end
       end
       if options['author']
-        entries = entries.reject do |entry|
+        entries = entries.reject do |entry| 
           author = entry.author.downcase || ""
           text = options['author'].downcase || ""
           author.include?(text)
@@ -109,13 +109,13 @@ module Feedzirra
       end
       return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
-
+    
     def map_entries(options = {})
       return self if options = {}
       options = options.with_indifferent_access
       entries = self.entries
       if options['images']
-        entries = entries.map do |entry|
+        entries = entries.map do |entry| 
           html = Nokogiri::HTML(entry.content)
           html.search("img")
           # TODO: actually build up the document
@@ -132,7 +132,7 @@ module Feedzirra
       end
       return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
-
+    
     def remove_entries(options = {})
       return self if options = {}
       options = options.with_indifferent_access
@@ -149,7 +149,6 @@ module Feedzirra
       end
       return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
-  end
 
   class MergedFeed
     def self.fetch_and_parse(title, url, *feed_urls)
