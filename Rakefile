@@ -21,9 +21,9 @@ Jeweler::Tasks.new do |gem|
   gem.authors = ["Alvin Liang", "Ryan Kabir"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
-  gem.add_runtime_dependency 'feedzirra'
-  gem.add_runtime_dependency 'nokogiri'
-  gem.add_runtime_dependency 'activesupport'
+  gem.add_dependency 'feedzirra'
+  gem.add_dependency 'nokogiri'
+  gem.add_dependency 'activesupport'
   gem.add_development_dependency 'rspec'
   #  gem.add_runtime_dependency 'jabber4r', '> 0.1'
   #  gem.add_development_dependency 'rspec', '> 1.2.3'

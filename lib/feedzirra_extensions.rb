@@ -1,6 +1,6 @@
 require 'feedzirra'
 require 'nokogiri'
-require 'activesupport'
+require 'active_support'
 
 module Feedzirra
   module FeedzirraParserExtensions
@@ -54,7 +54,7 @@ module Feedzirra
           entry
         end
       end
-      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
+      return Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
 
     def where_entries_not(options = {})
@@ -63,14 +63,13 @@ module Feedzirra
       entries = self.entries
       if options['text']
         entries = entries.reject do |entry|
-          entries = entries.find_all do |entry|
-            title = entry.title.downcase || ""
-            summary = entry.summary.downcase || ""
-            content = entry.content.downcase || ""
-            text = options['text'].downcase || ""
-            title.include?(text) ||
-              summary.include?(text) ||
-              content.include?(text)
+          title = entry.title.downcase || ""
+          summary = entry.summary.downcase || ""
+          content = entry.content.downcase || ""
+          text = options['text'].downcase || ""
+          title.include?(text) ||
+            summary.include?(text) ||
+            content.include?(text)
         end
       end
       if options['author']
@@ -101,13 +100,14 @@ module Feedzirra
             links = html.search("a[href]").length > 0
           end
         end
+      end
       if options['has_attachment']
         entries = entries.send(method) do |entry|
           # TODO
           entry
         end
       end
-      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
+      return Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
 
     def map_entries(options = {})
@@ -130,7 +130,7 @@ module Feedzirra
       end
       if options['video']
       end
-      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
+      return Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
 
     def remove_entries(options = {})
@@ -147,24 +147,7 @@ module Feedzirra
       end
       if options['video']
       end
-      return ::Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
-    end
-
-    class MergedFeed
-      def self.fetch_and_parse(title, url, *feed_urls)
-        # Create a new feed parser instance from the given feeds,
-        # using your title and url
-        feeds = ::Feedzirra::Feed.fetch_and_parse(feed_urls)
-        entries = []
-        feeds.each_pair do |k,v|
-          # Brace against response errors
-          next if v.is_a?(Fixnum)
-          entries = entries + v.entries
-        end
-        # Sort by date published
-        entries.sort! { |x,y| y.published <=> x.published }
-        return ::Feedzirra::Parser::GenericParser.new(title, url, entries)
-      end
+      return Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
   end
 
