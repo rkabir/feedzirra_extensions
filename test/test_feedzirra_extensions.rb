@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'helper'
 
 class TestFeedzirraExtensions < Test::Unit::TestCase
