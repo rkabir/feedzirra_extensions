@@ -15,9 +15,9 @@ module Feedzirra
     end
 
     def cleaned_content(entry)
-      title = entry.title ? entry.title.downcase || ""
-      summary = entry.summary ? entry.summary.downcase || ""
-      content = entry.content ? entry.content.downcase || ""
+      title = entry.title ? entry.title.downcase : ""
+      summary = entry.summary ? entry.summary.downcase : ""
+      content = entry.content ? entry.content.downcase : ""
       return title, summary, content
     end
 
