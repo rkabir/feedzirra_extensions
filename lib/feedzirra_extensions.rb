@@ -40,7 +40,7 @@ module Feedzirra
       return results.flatten
     end
 
-    def entries_with_images(args)
+    def entries_with_images(*args)
       entries.find_all do |entry|
         begin
           html = Nokogiri::HTML(entry.content)
@@ -51,7 +51,7 @@ module Feedzirra
       end
     end
 
-    def entries_with_links(args)
+    def entries_with_links(*args)
       entries.find_all do |entry|
         begin
           html = Nokogiri::HTML(entry.content)
