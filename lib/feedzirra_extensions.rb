@@ -33,7 +33,7 @@ module Feedzirra
 
     def match_exact_string(match_string)
       text = match_string.downcase || ""
-      re = Regexp.new(/\b#{match_string}/)
+      re = Regexp.new(/\b#{text}/)
       entries.find_all do |entry|
         title, summary, content = cleaned_content(entry)
         title =~ re ||
