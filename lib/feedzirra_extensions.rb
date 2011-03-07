@@ -21,13 +21,24 @@ module Feedzirra
       return title, summary, content
     end
 
-    def match_exact_string(match_string)
+    def match_exact_substring(match_string)
       text = match_string.downcase || ""
       entries.find_all do |entry|
         title, summary, content = cleaned_content(entry)
         title.include?(text) ||
           summary.include?(text) ||
           content.include?(text)
+      end
+    end
+
+    def match_exact_string(match_string)
+      text = match_string.downcase || ""
+      re = Regexp.new(/\b#{match_string}/)
+      entries.find_all do |entry|
+        title, summary, content = cleaned_content(entry)
+        title =~ re ||
+        summary =~ re ||
+        content =~ re
       end
     end
 
