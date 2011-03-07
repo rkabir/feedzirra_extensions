@@ -21,6 +21,15 @@ module Feedzirra
       return title, summary, content
     end
 
+    def match_title(match_string)
+      text = match_string.downcase || ""
+      re = Regexp.new(/\b#{text}/)
+      entries.find_all do |entry|
+        clean_title = entry.title ? entry.title.downcase : ""
+        title =~ re
+      end
+    end
+
     def match_exact_substring(match_string)
       text = match_string.downcase || ""
       entries.find_all do |entry|
@@ -77,6 +86,9 @@ module Feedzirra
       return self if options == {}
       options = options.with_indifferent_access
       entries = self.entries
+      if options['title']
+        entries = match_title(options['title'])
+      end
       if options['text']
         entries = match_exact_string(options['text'])
       end
