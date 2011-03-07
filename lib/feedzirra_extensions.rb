@@ -37,8 +37,8 @@ module Feedzirra
       entries.find_all do |entry|
         title, summary, content = cleaned_content(entry)
         title =~ re ||
-        summary =~ re ||
-        content =~ re
+        Nokogiri::HTML(summary).content =~ re ||
+        Nokogiri::HTML(content).content =~ re
       end
     end
 
