@@ -26,7 +26,7 @@ module Feedzirra
       re = Regexp.new(/\b#{text}/)
       entries.find_all do |entry|
         clean_title = entry.title ? entry.title.downcase : ""
-        title =~ re
+        clean_title =~ re
       end
     end
 
