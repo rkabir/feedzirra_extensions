@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{feedzirra_extensions}
-  s.version = "0.0.14"
+  s.version = "0.0.15"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alvin Liang", "Ryan Kabir"]
-  s.date = %q{2011-03-07}
+  s.date = %q{2011-03-08}
   s.description = %q{No really, extensions to Feedzirra}
   s.email = %q{ayliang@gmail.com}
   s.extra_rdoc_files = [
