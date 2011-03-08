@@ -26,7 +26,7 @@ module Feedzirra
       re = Regexp.new(/\b#{text}/)
       entries.find_all do |entry|
         clean_title = entry.title ? entry.title.downcase : ""
-        title =~ re
+        clean_title =~ re
       end
     end
 
@@ -46,8 +46,8 @@ module Feedzirra
       entries.find_all do |entry|
         title, summary, content = cleaned_content(entry)
         title =~ re ||
-        Nokogiri::HTML(summary).content =~ re ||
-        Nokogiri::HTML(content).content =~ re
+          Nokogiri::HTML(summary).content =~ re ||
+          Nokogiri::HTML(content).content =~ re
       end
     end
 
@@ -144,14 +144,12 @@ module Feedzirra
       end
       if options['has_link']
         entries = entries.reject do |entry|
-          entries = entries.reject do |entry|
-            begin
-              html = Nokogiri::HTML(entry.content)
-            rescue
-              return true
-            end
-            links = html.search("a[href]").length > 0
+          begin
+            html = Nokogiri::HTML(entry.content)
+          rescue
+            return true
           end
+          links = html.search("a[href]").length > 0
         end
       end
       if options['has_attachment']
