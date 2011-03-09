@@ -1,6 +1,7 @@
 require 'feedzirra'
 require 'nokogiri'
 require 'active_support'
+require 'sanitize'
 
 module Feedzirra
   module FeedzirraParserExtensions
@@ -167,19 +168,26 @@ module Feedzirra
       entries = self.entries
       if options['images']
         entries = entries.map do |entry|
-          html = Nokogiri::HTML(entry.content)
-          html.search("img")
-          # TODO: actually build up the document
-          # new_entry = ?? Not sure which object
+          title, summary, content = cleaned_content(entry)
+          Sanitize.clean(content, :elements => ['img'])
+          # Return clone of entry
         end
       end
       if options['links']
+        entries = entries.map do |entry|
+          title, summary, content = cleaned_content(entry)
+          Sanitize.clean(content, :elements => ['a'])
+          # Return clone of entry
+        end
       end
       if options['attachments']
+        # TODO
       end
       if options['audio']
+        # TODO
       end
       if options['video']
+        # TODO
       end
       return Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
@@ -223,6 +231,14 @@ module Feedzirra
         self.title = title
         # ensure this is an Array, or you can't do silly stuff like size()
         self.entries = entries.to_a
+      end
+    end
+    
+    class GenericEntry
+      include FeedEntryUtilities
+      attr_accessor :title, :name, :content, :url, :author, :summary, :published, :entry_id, :updated, :categories, :links
+      def initialize(dict)
+        # TODO
       end
     end
   end
