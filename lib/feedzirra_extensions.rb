@@ -223,6 +223,8 @@ module Feedzirra
 
       # include ::FeedZirra::FeedUtilities
       # include ::FeedZirra::FeedzirraParserExtensions
+      PARSER_ATTRIBUTES = [:title, :url, :feed_url, :entries, :etag, 
+        :last_modified]
       include FeedUtilities
       include FeedzirraParserExtensions
       attr_accessor :title, :url, :feed_url, :entries, :etag, :last_modified
@@ -235,11 +237,11 @@ module Feedzirra
     end
     
     class GenericEntry
+      ENTRY_ATTRIBUTES = [:title, :name, :content, :url, :author, :summary,
+        :published, :entry_id, :updated, :categories, :links]
       include FeedEntryUtilities
-      attr_accessor :title, :name, :content, :url, :author, :summary, :published, :entry_id, :updated, :categories, :links
-      def initialize(dict)
-        # TODO
-      end
+      attr_accessor :title, :name, :content, :url, :author, :summary,
+        :published, :entry_id, :updated, :categories, :links
     end
   end
 end
