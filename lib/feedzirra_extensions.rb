@@ -7,6 +7,9 @@ module Feedzirra
   module FeedzirraParserExtensions
     # mix this into feed, or whatever else has an entries object
 
+    ###
+    ### Methods for where_entries
+    ###
     def match_author(name)
       name = name.downcase || ""
       self.entries.find_all do |entry|
@@ -83,6 +86,13 @@ module Feedzirra
       end
     end
 
+    def entries_randomly(frequency)
+      return entries if frequency >= 1
+      entries.find_all do |entry|
+        Random.rand < frequency
+      end
+    end
+
     def where_entries(options = {})
       return self if options == {}
       options = options.with_indifferent_access
@@ -94,7 +104,7 @@ module Feedzirra
         entries = match_exact_string(options['text'])
       end
       if options['author']
-        entries = match_author(name)
+        entries = match_author(options['author'])
       end
       if options['has_image']
         entries = entries_with_images
@@ -108,8 +118,15 @@ module Feedzirra
           entry
         end
       end
+      if options['random']
+        entries = entries_randomly(options['random'])
+      end
       return Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
+
+    ###
+    ### Methods for where_entries_not
+    ###
 
     def where_entries_not(options = {})
       return self if options == {}
@@ -159,6 +176,9 @@ module Feedzirra
           entry
         end
       end
+      if options['random']
+        entries = entries_randomly(1 - options['random'])
+      end
       return Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
 
@@ -169,15 +189,17 @@ module Feedzirra
       if options['images']
         entries = entries.map do |entry|
           title, summary, content = cleaned_content(entry)
-          Sanitize.clean(content, :elements => ['img'])
-          # Return clone of entry
+          ge = GenericEntry.create_from_entry(entry)
+          ge.content = Sanitize.clean(content, :elements => ['img'])
+          ge
         end
       end
       if options['links']
         entries = entries.map do |entry|
           title, summary, content = cleaned_content(entry)
-          Sanitize.clean(content, :elements => ['a'])
-          # Return clone of entry
+          ge = GenericEntry.create_from_entry(entry)
+          ge.content = Sanitize.clean(content, :elements => ['a'])
+          ge
         end
       end
       if options['attachments']
@@ -237,11 +259,22 @@ module Feedzirra
     end
     
     class GenericEntry
-      ENTRY_ATTRIBUTES = [:title, :name, :content, :url, :author, :summary,
-        :published, :entry_id, :updated, :categories, :links]
+      INSTANCE_VARIABLES = ["@title", "@name", "@content", "@url", "@author",
+        "@summary", "@published", "@entry_id", "@updated", "@categories",
+        "@links"]
       include FeedEntryUtilities
       attr_accessor :title, :name, :content, :url, :author, :summary,
         :published, :entry_id, :updated, :categories, :links
+      def self.create_from_entry(entry)
+        ge = GenericEntry.new
+        entry.instance_variables.each do |iv|
+          # only set attributes GenericEntries have.
+          if INSTANCE_VARIABLES.include?(iv)
+            value = entry.instance_variable_get(iv)
+            ge.instance_variable_set(iv, value)
+          end
+        end
+      end
     end
   end
 end
