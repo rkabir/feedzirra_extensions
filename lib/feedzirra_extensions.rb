@@ -51,7 +51,7 @@ module Feedzirra
 
     def match_title(match_string)
       text = match_string.downcase || ""
-      re = Regexp.new(/\b#{text}/)
+      re = Regexp.new(/\b#{text}/i)
       entries.find_all do |entry|
         clean_title = entry.title ? entry.title.downcase : ""
         clean_title =~ re
@@ -70,7 +70,7 @@ module Feedzirra
 
     def match_exact_string(match_string)
       text = match_string.downcase || ""
-      re = Regexp.new(/\b#{text}/)
+      re = Regexp.new(/\b#{text}/i)
       entries.find_all do |entry|
         title, summary, content = cleaned_content(entry)
         title =~ re ||
