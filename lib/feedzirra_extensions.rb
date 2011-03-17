@@ -2,10 +2,21 @@ require 'feedzirra'
 require 'nokogiri'
 require 'active_support'
 require 'sanitize'
+require 'uri'
 
 module Feedzirra
   module FeedzirraParserExtensions
     # mix this into feed, or whatever else has an entries object
+
+    ### Method to find base url
+    def base_url
+      # could use xml:base, but i think that data is lost
+      url || feed_url
+    end
+
+    def base_url_merge(uri_or_string)
+      self.base_url.merge(uri_or_string)
+    end
 
     ###
     ### Methods for where_entries
