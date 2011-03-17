@@ -17,6 +17,19 @@ module Feedzirra
     def base_url_merge(uri_or_string)
       self.base_url.merge(uri_or_string)
     end
+    
+    def entries_with_absolute_img_src
+      entries.map do |e|
+        nodes = Nokogiri::HTML.parse(e.content)
+        ge = GenericEntry.create_from_entry(e)
+        html.css("img").each do |node|
+          node['src'] = base_url_merge(node['src']) if node['src']
+        end
+        # Might have to mark this as safe on the rails side?
+        ge.content = nodes.to_s
+        ge
+      end
+    end
 
     ###
     ### Methods for where_entries
