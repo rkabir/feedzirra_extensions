@@ -34,19 +34,13 @@ module Feedzirra
     ###
     ### Methods for where_entries
     ###
-    def match_author(name)
+    # phtase search, but no word boundary
+    def match_author_exact(name)
       name = name.downcase || ""
       self.entries.find_all do |entry|
         author = entry.author.downcase || ""
         author.include?(name)
       end
-    end
-
-    def cleaned_content(entry)
-      title = entry.title ? entry.title.downcase : ""
-      summary = entry.summary ? entry.summary.downcase : ""
-      content = entry.content ? entry.content.downcase : ""
-      return title, summary, content
     end
 
     # phrase search
@@ -89,7 +83,8 @@ module Feedzirra
       end
     end
 
-    def match_exact_substring(match_string)
+    # phrase, no word boundary
+    def match_text_exact(match_string)
       text = match_string.downcase || ""
       entries.find_all do |entry|
         title, summary, content = cleaned_content(entry)
@@ -99,7 +94,8 @@ module Feedzirra
       end
     end
 
-    def match_exact_string(match_string)
+    # phrase
+    def match_text(match_string)
       text = match_string.downcase || ""
       re = Regexp.new(/\b#{text}/i)
       entries.find_all do |entry|
@@ -110,13 +106,11 @@ module Feedzirra
       end
     end
 
-    def match_any_string(token_string)
-      tokens = token_string.split
-      results = []
-      tokens.each do |token|
-        results << match_exact_string(token)
-      end
-      return results.flatten
+    # any word
+    def match_text_any_word
+    end
+    
+    def match_text_all_words
     end
 
     def entries_with_images(*args)
@@ -156,10 +150,10 @@ module Feedzirra
         entries = match_title(options['title'])
       end
       if options['text']
-        entries = match_exact_string(options['text'])
+        entries = match_text(options['text'])
       end
       if options['author']
-        entries = match_author(options['author'])
+        entries = match_author_exact(options['author'])
       end
       if options['has_image']
         entries = entries_with_images
@@ -284,6 +278,16 @@ module Feedzirra
       if options['video']
       end
       return Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
+    end
+    
+    ### Private methods
+    
+    private
+    def cleaned_content(entry)
+      title = entry.title ? entry.title.downcase : ""
+      summary = entry.summary ? entry.summary.downcase : ""
+      content = entry.content ? entry.content.downcase : ""
+      return title, summary, content
     end
   end
 
