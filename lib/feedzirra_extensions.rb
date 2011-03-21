@@ -56,8 +56,8 @@ module Feedzirra
     # any of the words
     def match_title_any_word(match_string)
       text = match_string.downcase || ""
-      words = text.split()
-      res = words.map { |w| Regexp.new("\b#{w}") }
+      words = text.split
+      res = words.map { |w| Regexp.new(/\b#{w}/i) }
       entries.find_all do |entry|
         clean_title = entry.title ? entry.title.downcase : ""
         matches = false
@@ -71,8 +71,8 @@ module Feedzirra
     # all of the words
     def match_title_all_words(match_string)
       text = match_string.downcase || ""
-      words = text.split()
-      res = words.map { |w| Regexp.new("\b#{w}") }
+      words = text.split
+      res = words.map { |w| Regexp.new(/\b#{w}/i) }
       entries.find_all do |entry|
         clean_title = entry.title ? entry.title.downcase : ""
         matches = true
@@ -107,10 +107,38 @@ module Feedzirra
     end
 
     # any word
-    def match_text_any_word
+    def match_text_any_word(match_string)
+      text = match_string.downcase || ""
+      words = text.split
+      res = words.map { |w| Regexp.new(/\b#{w}/i) }
+      entries.find_all do |entry|
+        title, summary, content = cleaned_content(entry)
+        matches = false
+        res.each do |re|
+          this_re_matches = title =~ re ||
+            Nokogiri::HTML(summary).content =~ re ||
+            Nokogiri::HTML(content).content =~ re
+          matches = matches || this_re_matches
+        end
+        matches
+      end
     end
     
-    def match_text_all_words
+    def match_text_all_words(match_string)
+      text = match_string.downcase || ""
+      words = text.split
+      res = words.map { |w| Regexp.new(/\b#{w}/i) }
+      entries.find_all do |entry|
+        title, summary, content = cleaned_content(entry)
+        matches = true
+        res.each do |re|
+          this_re_matches = title =~ re ||
+            Nokogiri::HTML(summary).content =~ re ||
+            Nokogiri::HTML(content).content =~ re
+          matches = matches && this_re_matches
+        end
+        matches
+      end
     end
 
     def entries_with_images(*args)
