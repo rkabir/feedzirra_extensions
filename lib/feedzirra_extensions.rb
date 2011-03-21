@@ -4,7 +4,7 @@ require 'active_support'
 require 'sanitize'
 require 'uri'
 
-module Feedzirra
+module Feedzirra  
   module FeedzirraParserExtensions
     # mix this into feed, or whatever else has an entries object
 
@@ -34,80 +34,86 @@ module Feedzirra
     ###
     ### Methods for where_entries
     ###
-    # phtase search, but no word boundary
-    def match_author_exact(name)
+    # phrase search, but no word boundary 
+    def match_author_exact(name, reject = false)
       name = name.downcase || ""
-      self.entries.find_all do |entry|
+      proc = Proc.new { |entry|
         author = entry.author.downcase || ""
         author.include?(name)
-      end
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
     # phrase search
-    def match_title(match_string)
+    def match_title(match_string, reject = false)
       text = match_string.downcase || ""
       re = Regexp.new(/\b#{text}/i)
-      entries.find_all do |entry|
+      proc = Proc.new { |entry|
         clean_title = entry.title ? entry.title.downcase : ""
-        clean_title =~ re
-      end
+        !!(clean_title =~ re)
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
     
     # any of the words
-    def match_title_any_word(match_string)
+    def match_title_any_word(match_string, reject = false)
       text = match_string.downcase || ""
       words = text.split
       res = words.map { |w| Regexp.new(/\b#{w}/i) }
-      entries.find_all do |entry|
+      proc = Proc.new { |entry|
         clean_title = entry.title ? entry.title.downcase : ""
         res.collect { |re|
           !!(clean_title =~ re)
         }.inject(:|)
-      end
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
     
     # all of the words
-    def match_title_all_words(match_string)
+    def match_title_all_words(match_string, reject = false)
       text = match_string.downcase || ""
       words = text.split
       res = words.map { |w| Regexp.new(/\b#{w}/i) }
-      entries.find_all do |entry|
+      proc = Proc.new { |entry|
         clean_title = entry.title ? entry.title.downcase : ""
         res.collect { |re|
           !!(clean_title =~ re)
         }.inject(:&)
-      end
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
     # phrase, no word boundary
-    def match_text_exact(match_string)
+    def match_text_exact(match_string, reject = false)
       text = match_string.downcase || ""
-      entries.find_all do |entry|
+      proc = Proc.new { |entry|
         title, summary, content = cleaned_content(entry)
         title.include?(text) ||
           summary.include?(text) ||
           content.include?(text)
-      end
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
     # phrase
-    def match_text(match_string)
+    def match_text(match_string, reject = false)
       text = match_string.downcase || ""
       re = Regexp.new(/\b#{text}/i)
-      entries.find_all do |entry|
+      proc = Proc.new { |entry|
         title, summary, content = cleaned_content(entry)
-        title =~ re ||
-          Nokogiri::HTML(summary).content =~ re ||
-          Nokogiri::HTML(content).content =~ re
-      end
+        !!(title =~ re) ||
+          !!(Nokogiri::HTML(summary).content =~ re) ||
+          !!(Nokogiri::HTML(content).content =~ re)
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
     # any word
-    def match_text_any_word(match_string)
+    def match_text_any_word(match_string, reject = false)
       text = match_string.downcase || ""
       words = text.split
       res = words.map { |w| Regexp.new(/\b#{w}/i) }
-      entries.find_all do |entry|
+      proc = Proc.new { |entry|
         title, summary, content = cleaned_content(entry)
         res.collect { |re|
           !!(
@@ -116,14 +122,15 @@ module Feedzirra
             Nokogiri::HTML(content).content =~ re
           )
         }.inject(:|)
-      end
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
     
-    def match_text_all_words(match_string)
+    def match_text_all_words(match_string, reject = false)
       text = match_string.downcase || ""
       words = text.split
       res = words.map { |w| Regexp.new(/\b#{w}/i) }
-      entries.find_all do |entry|
+      proc = Proc.new { |entry|
         title, summary, content = cleaned_content(entry)
         res.collect { |re|
           !!(
@@ -133,38 +140,46 @@ module Feedzirra
           )
         }.inject(:&)
         matches
-      end
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
-    def entries_with_images(*args)
-      entries.find_all do |entry|
+    def entries_with_images(reject = false)
+      proc = Proc.new { |entry|
         begin
           html = Nokogiri::HTML(entry.content)
         rescue
           return true
         end
         html.search("img").length > 0
-      end
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
-    def entries_with_links(*args)
-      entries.find_all do |entry|
+    def entries_with_links(reject = false)
+      proc = Proc.new { |entry|
         begin
           html = Nokogiri::HTML(entry.content)
         rescue
           return true
         end
         html.search("a[href]").length > 0
-      end
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
-    def entries_randomly(frequency)
+    def entries_randomly(frequency, reject = false)
+      frequency = 1 - frequency if reject
       return entries if frequency >= 1
-      entries.find_all do |entry|
+      proc = Proc.new { |entry|
         Random.rand < frequency
-      end
+      }
     end
 
+    # this is implicitly an AND if you include
+    # more than one type of filter
+    # right now, though, AND/OR is handled at the top level
+    # by combining the results
     def where_entries(options = {})
       return self if options == {}
       options = options.with_indifferent_access
@@ -172,8 +187,20 @@ module Feedzirra
       if options['title']
         entries = match_title(options['title'])
       end
+      if options['title_any']
+        entries = match_title(options['title_any'])
+      end
+      if options['title_all']
+        entries = match_title(options['title_all'])
+      end
       if options['text']
         entries = match_text(options['text'])
+      end
+      if options['text_any']
+        entries = match_text_any_word(options['text_any'])
+      end
+      if options['text_all']
+        entries = match_text_all_words(options['text_all'])
       end
       if options['author']
         entries = match_author_exact(options['author'])
@@ -185,10 +212,7 @@ module Feedzirra
         entries = entries_with_links
       end
       if options['has_attachment']
-        entries = entries.find_all do |entry|
-          # TODO
-          entry
-        end
+        entries
       end
       if options['random']
         entries = entries_randomly(options['random'])
@@ -204,52 +228,38 @@ module Feedzirra
       return self if options == {}
       options = options.with_indifferent_access
       entries = self.entries
+      if options['title']
+        entries = match_title(options['title'], true)
+      end
+      if options['title_any']
+        entries = match_title(options['title_any'], true)
+      end
+      if options['title_all']
+        entries = match_title(options['title_all'], true)
+      end
       if options['text']
-        entries = entries.reject do |entry|
-          title = entry.title ? entry.title.downcase : ""
-          summary = entry.summary ? entry.summary.downcase : ""
-          content = entry.content ? entry.content.downcase : ""
-          text = options['text'].downcase || ""
-          title.include?(text) ||
-            summary.include?(text) ||
-            content.include?(text)
-        end
+        entries = match_text(options['text'], true)
+      end
+      if options['text_any']
+        entries = match_text_any_word(options['text_any'], true)
+      end
+      if options['text_all']
+        entries = match_text_all_words(options['text_all'], true)
       end
       if options['author']
-        entries = entries.reject do |entry|
-          author = entry.author.downcase || ""
-          text = options['author'].downcase || ""
-          author.include?(text)
-        end
+        entries = match_author_exact(options['author'], true)
       end
       if options['has_image']
-        entries = entries.reject do |entry|
-          begin
-            html = Nokogiri::HTML(entry.content)
-          rescue
-            return true
-          end
-          html.search("img").length > 0
-        end
+        entries = entries_with_images(true)
       end
       if options['has_link']
-        entries = entries.reject do |entry|
-          begin
-            html = Nokogiri::HTML(entry.content)
-          rescue
-            return true
-          end
-          links = html.search("a[href]").length > 0
-        end
+        entries = entries_with_links(true)
       end
       if options['has_attachment']
-        entries = entries.send(method) do |entry|
-          # TODO
-          entry
-        end
+        entries
       end
       if options['random']
-        entries = entries_randomly(1 - options['random'])
+        entries = entries_randomly(options['random'], true)
       end
       return Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
