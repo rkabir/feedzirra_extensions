@@ -139,7 +139,6 @@ module Feedzirra
             Nokogiri::HTML(content).content =~ re
           )
         }.inject(:&)
-        matches
       }
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
