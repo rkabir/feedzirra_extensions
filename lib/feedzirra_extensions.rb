@@ -49,12 +49,43 @@ module Feedzirra
       return title, summary, content
     end
 
+    # phrase search
     def match_title(match_string)
       text = match_string.downcase || ""
       re = Regexp.new(/\b#{text}/i)
       entries.find_all do |entry|
         clean_title = entry.title ? entry.title.downcase : ""
         clean_title =~ re
+      end
+    end
+    
+    # any of the words
+    def match_title_any_word(match_string)
+      text = match_string.downcase || ""
+      words = text.split()
+      res = words.map { |w| Regexp.new("\b#{w}") }
+      entries.find_all do |entry|
+        clean_title = entry.title ? entry.title.downcase : ""
+        matches = false
+        res.each do |re|
+          matches = matches || clean_title =~ re
+        end
+        matches
+      end
+    end
+    
+    # all of the words
+    def match_title_all_words(match_string)
+      text = match_string.downcase || ""
+      words = text.split()
+      res = words.map { |w| Regexp.new("\b#{w}") }
+      entries.find_all do |entry|
+        clean_title = entry.title ? entry.title.downcase : ""
+        matches = true
+        res.each do |re|
+          matches = matches && clean_title =~ re
+        end
+        matches
       end
     end
 
