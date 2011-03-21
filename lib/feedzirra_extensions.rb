@@ -60,11 +60,9 @@ module Feedzirra
       res = words.map { |w| Regexp.new(/\b#{w}/i) }
       entries.find_all do |entry|
         clean_title = entry.title ? entry.title.downcase : ""
-        matches = false
-        res.each do |re|
-          matches = matches || clean_title =~ re
-        end
-        matches
+        res.collect { |re|
+          !!(clean_title =~ re)
+        }.inject(:|)
       end
     end
     
@@ -75,11 +73,9 @@ module Feedzirra
       res = words.map { |w| Regexp.new(/\b#{w}/i) }
       entries.find_all do |entry|
         clean_title = entry.title ? entry.title.downcase : ""
-        matches = true
-        res.each do |re|
-          matches = matches && clean_title =~ re
-        end
-        matches
+        res.collect { |re|
+          !!(clean_title =~ re)
+        }.inject(:&)
       end
     end
 
@@ -113,14 +109,13 @@ module Feedzirra
       res = words.map { |w| Regexp.new(/\b#{w}/i) }
       entries.find_all do |entry|
         title, summary, content = cleaned_content(entry)
-        matches = false
-        res.each do |re|
-          this_re_matches = title =~ re ||
+        res.collect { |re|
+          !!(
+            title =~ re ||
             Nokogiri::HTML(summary).content =~ re ||
             Nokogiri::HTML(content).content =~ re
-          matches = matches || this_re_matches
-        end
-        matches
+          )
+        }.inject(:|)
       end
     end
     
@@ -130,13 +125,13 @@ module Feedzirra
       res = words.map { |w| Regexp.new(/\b#{w}/i) }
       entries.find_all do |entry|
         title, summary, content = cleaned_content(entry)
-        matches = true
-        res.each do |re|
-          this_re_matches = title =~ re ||
+        res.collect { |re|
+          !!(
+            title =~ re ||
             Nokogiri::HTML(summary).content =~ re ||
             Nokogiri::HTML(content).content =~ re
-          matches = matches && this_re_matches
-        end
+          )
+        }.inject(:&)
         matches
       end
     end
