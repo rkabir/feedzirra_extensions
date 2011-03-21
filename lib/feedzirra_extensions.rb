@@ -169,7 +169,7 @@ module Feedzirra
 
     def entries_randomly(frequency, reject = false)
       frequency = 1 - frequency if reject
-      return entries if frequency >= 1
+      # return entries if frequency >= 1
       proc = Proc.new { |entry|
         Random.rand < frequency
       }
