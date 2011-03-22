@@ -188,10 +188,10 @@ module Feedzirra
         entries = match_title(options['title'])
       end
       if options['title_any']
-        entries = match_title(options['title_any'])
+        entries = match_title_any_word(options['title_any'])
       end
       if options['title_all']
-        entries = match_title(options['title_all'])
+        entries = match_title_all_words(options['title_all'])
       end
       if options['text']
         entries = match_text(options['text'])
@@ -232,10 +232,10 @@ module Feedzirra
         entries = match_title(options['title'], true)
       end
       if options['title_any']
-        entries = match_title(options['title_any'], true)
+        entries = match_title_any_word(options['title_any'], true)
       end
       if options['title_all']
-        entries = match_title(options['title_all'], true)
+        entries = match_title_all_words(options['title_all'], true)
       end
       if options['text']
         entries = match_text(options['text'], true)
