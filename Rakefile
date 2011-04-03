@@ -24,6 +24,7 @@ Jeweler::Tasks.new do |gem|
   gem.add_dependency 'feedzirra'
   gem.add_dependency 'nokogiri'
   gem.add_dependency 'activesupport'
+  gem.add_dependency 'sanitize'
   gem.add_development_dependency 'rspec'
   #  gem.add_runtime_dependency 'jabber4r', '> 0.1'
   #  gem.add_development_dependency 'rspec', '> 1.2.3'
