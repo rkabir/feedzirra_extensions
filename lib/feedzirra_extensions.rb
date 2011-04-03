@@ -173,6 +173,11 @@ module Feedzirra
           # new_entry = ?? Not sure which object
         end
       end
+      if throttle = options['throttle']
+        entries = entries.reject do |entry|
+          entry.url.hash % 100 > throttle
+        end
+      end
       if options['links']
       end
       if options['attachments']
