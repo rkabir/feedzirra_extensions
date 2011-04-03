@@ -4,7 +4,7 @@ require 'active_support'
 require 'sanitize'
 require 'uri'
 
-module Feedzirra  
+module Feedzirra
   module FeedzirraParserExtensions
     # mix this into feed, or whatever else has an entries object
 
@@ -17,7 +17,7 @@ module Feedzirra
     def base_url_merge(uri_or_string)
       self.base_url.merge(uri_or_string)
     end
-    
+
     def entries_with_absolute_img_src
       entries.map do |e|
         nodes = Nokogiri::HTML.parse(e.content)
@@ -34,7 +34,7 @@ module Feedzirra
     ###
     ### Methods for where_entries
     ###
-    # phrase search, but no word boundary 
+    # phrase search, but no word boundary
     def match_author_exact(name, reject = false)
       name = name.downcase || ""
       proc = Proc.new { |entry|
@@ -54,7 +54,7 @@ module Feedzirra
       }
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
-    
+
     # any of the words
     def match_title_any_word(match_string, reject = false)
       text = match_string.downcase || ""
@@ -68,7 +68,7 @@ module Feedzirra
       }
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
-    
+
     # all of the words
     def match_title_all_words(match_string, reject = false)
       text = match_string.downcase || ""
@@ -125,7 +125,7 @@ module Feedzirra
       }
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
-    
+
     def match_text_all_words(match_string, reject = false)
       text = match_string.downcase || ""
       words = text.split
@@ -317,9 +317,9 @@ module Feedzirra
       end
       return Feedzirra::Parser::GenericParser.new(self.title, self.url, entries)
     end
-    
+
     ### Private methods
-    
+
     private
     def cleaned_content(entry)
       title = entry.title ? entry.title.downcase : ""
@@ -342,7 +342,7 @@ module Feedzirra
 
       # include ::FeedZirra::FeedUtilities
       # include ::FeedZirra::FeedzirraParserExtensions
-      PARSER_ATTRIBUTES = [:title, :url, :feed_url, :entries, :etag, 
+      PARSER_ATTRIBUTES = [:title, :url, :feed_url, :entries, :etag,
         :last_modified]
       include FeedUtilities
       include FeedzirraParserExtensions
@@ -354,7 +354,7 @@ module Feedzirra
         self.entries = entries.to_a
       end
     end
-    
+
     class GenericEntry
       INSTANCE_VARIABLES = ["@title", "@name", "@content", "@url", "@author",
         "@summary", "@published", "@entry_id", "@updated", "@categories",
