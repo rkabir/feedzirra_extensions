@@ -4,13 +4,17 @@ require 'active_support'
 require 'sanitize'
 require 'uri'
 
-module Feedzirra
+# TODO: Override some parsers from feedzirra (see issues about gawker
+# permalinks on github)
+
+module Feedzirra  
   module FeedzirraParserExtensions
     # mix this into feed, or whatever else has an entries object
 
     ### Method to find base url
     def base_url
       # could use xml:base, but i think that data is lost
+      # TODO: Should be a URI object
       url || feed_url
     end
 
