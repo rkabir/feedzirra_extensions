@@ -3,6 +3,7 @@ require 'nokogiri'
 require 'active_support'
 require 'sanitize'
 require 'uri'
+require 'readability'
 
 # TODO: Override some parsers from feedzirra (see issues about gawker
 # permalinks on github)
@@ -289,7 +290,14 @@ module Feedzirra
         entries = entries.map do |entry|
           title, summary, content = cleaned_content(entry)
           ge = GenericEntry.create_from_entry(entry)
-          ge.content = Sanitize.clean(content, :elements => ['a'])
+          ge.content = Sanitize.clean(ge.content, :elements => ['a'])
+          ge
+        end
+      end
+      if options['readability']
+        entries = entries.map do |entry|
+          ge = GenericEntry.create_from_entry(entry)
+          ge.content = Readability::Document.new(ge.content).content
           ge
         end
       end
@@ -382,11 +390,15 @@ end
 
 # Mix in with Feedzirra parsers
 # Or if you switch backends from Feedzirra you can mix in appropriately
-[
-  Feedzirra::Parser::Atom, Feedzirra::Parser::AtomFeedBurner,
-  Feedzirra::Parser::ITunesRSS, Feedzirra::Parser::RSS
-].each do |klass|
-  klass.class_eval do
-    include Feedzirra::FeedzirraParserExtensions
+begin
+  [
+    Feedzirra::Parser::Atom, Feedzirra::Parser::AtomFeedBurner,
+    Feedzirra::Parser::ITunesRSS, Feedzirra::Parser::RSS
+  ].each do |klass|
+    klass.class_eval do
+      include Feedzirra::FeedzirraParserExtensions
+    end
   end
+rescue
+  # do nothing, feedzirra wasn't installed
 end
