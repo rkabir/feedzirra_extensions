@@ -381,6 +381,7 @@ module Feedzirra
             ge.instance_variable_set(iv, value)
           end
         end
+        return ge
       end
     end
   end
