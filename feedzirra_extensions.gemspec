@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{feedzirra_extensions}
-  s.version = "0.1.1"
+  s.version = "0.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alvin Liang", "Ryan Kabir"]
@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/rkabir/feedzirra_extensions}
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.6.2}
+  s.rubygems_version = %q{1.5.3}
   s.summary = %q{Extensions to Feedzirra}
   s.test_files = [
     "test/helper.rb",
