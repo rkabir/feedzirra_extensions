@@ -88,6 +88,18 @@ module Feedzirra
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
+    def match_keyword_exact
+    end
+
+    def match_keyword
+    end
+
+    def match_keyword_any_word
+    end
+
+    def match_keyword_all_words
+    end
+
     # phrase, no word boundary
     def match_text_exact(match_string, reject = false)
       text = match_string.downcase || ""
