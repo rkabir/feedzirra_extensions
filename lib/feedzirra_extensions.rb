@@ -276,7 +276,11 @@ module Feedzirra
       if options['images']
         entries = entries.map do |entry|
           ge = GenericEntry.create_from_entry(entry)
-          ge.content = Sanitize.clean(ge.content, :elements => ['img'])
+          imgs = Nokogiri::HTML.parse(ge.content).search('img')
+          ge.content = imgs.map do |img|
+            img.to_html
+          end.join("<br/>")
+          # ge.content = Sanitize.clean(ge.content, :elements => ['img'])
           ge
         end
       end
