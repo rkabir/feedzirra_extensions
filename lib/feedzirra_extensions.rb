@@ -275,20 +275,13 @@ module Feedzirra
       entries = self.entries
       if options['images']
         entries = entries.map do |entry|
-          title, summary, content = cleaned_content(entry)
           ge = GenericEntry.create_from_entry(entry)
-          ge.content = Sanitize.clean(content, :elements => ['img'])
+          ge.content = Sanitize.clean(ge.content, :elements => ['img'])
           ge
-        end
-      end
-      if throttle = options['throttle']
-        entries = entries.reject do |entry|
-          entry.url.hash % 100 > throttle
         end
       end
       if options['links']
         entries = entries.map do |entry|
-          title, summary, content = cleaned_content(entry)
           ge = GenericEntry.create_from_entry(entry)
           ge.content = Sanitize.clean(ge.content, :elements => ['a'])
           ge
@@ -299,6 +292,11 @@ module Feedzirra
           ge = GenericEntry.create_from_entry(entry)
           ge.content = Readability::Document.new(ge.content).content
           ge
+        end
+      end
+      if throttle = options['throttle']
+        entries = entries.reject do |entry|
+          entry.url.hash % 100 > throttle
         end
       end
       if options['attachments']
