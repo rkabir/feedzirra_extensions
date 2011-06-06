@@ -8,7 +8,11 @@ require 'readability'
 # TODO: Override some parsers from feedzirra (see issues about gawker
 # permalinks on github)
 
-module Feedzirra  
+module Feedzirra
+  # TODO: Extend Entry as well to do the individual matches
+  # Only problem is, it's 10 times slower to repeatedly instantiate regex
+  # Long-term solution is Lucene or some other indexer with stemming
+  
   module FeedzirraParserExtensions
     # mix this into feed, or whatever else has an entries object
 
@@ -89,49 +93,97 @@ module Feedzirra
     end
 
     def match_categories_exact(match_string, reject = false)
-      # One keyword must match phrase exactly
-      proc = Proc.new { |entry|
-        clean_categories = entry.categories.map(&:downcase)
-        clean_categories.include?(match_string)
-      }
+      # One keyword must match phrase exactly, don't care about word boundaries
+      text = match_string.downcase
+      if categories && categories.size > 0
+        proc = Proc.new { |entry|
+          clean_categories = entry.categories.map(&:downcase)
+          clean_categories.include?(text)
+        }
+      else
+        # same as match_text_exact
+        proc = Proc.new { |entry|
+          title, summary, content = cleaned_content(entry)
+          title.include?(text) ||
+            summary.include?(text) ||
+            content.include?(text)
+        }
+      end
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
     def match_categories(match_string, reject = false)
-      # One keyword must match phrase, match can be partial
+      # One keyword must match phrase, match can be partial within a category
       re = Regexp.new(/\b#{match_string}\b/i)
-      proc = Proc.new { |entry|
-        clean_categories = entry.categories.map(&:downcase)
-        clean_categories.collect { |category|
-          !!(category =~ re)
-        }.inject(:|)
-      }
+      if categories && categories.size > 0
+        proc = Proc.new { |entry|
+          clean_categories = entry.categories.map(&:downcase)
+          clean_categories.collect { |category|
+            !!(category =~ re)
+          }.inject(:|)
+        }
+      else
+        # same as match_text
+        proc = Proc.new { |entry|
+          title, summary, content = cleaned_content(entry)
+          !!(title =~ re) ||
+            !!(Nokogiri::HTML(summary).content =~ re) ||
+            !!(Nokogiri::HTML(content).content =~ re)
+        }
+      end
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
     def match_categories_any_word(match_string, reject = false)
       # One keyword must match for any word in match string
       words = (match_string.downcase || "").split
-      proc = Proc.new { |entry|
-        clean_categories = entry.categories.map(&:downcase)
-        words.collect { |word|
-          # true if re matches one keyword exactly
-          clean_categories.include?(word)
+      if categories && categories.size > 0
+        proc = Proc.new { |entry|
+          clean_categories = entry.categories.map(&:downcase)
+          words.collect { |word|
+            # true if re matches one keyword exactly
+            clean_categories.include?(word)
+          }.inject(:|)
+        }
+      else
+        # same as match_text_any_word
+        res = words.map { |w| Regexp.new(/\b#{w}/i) }
+        title, summary, content = cleaned_content(entry)
+        res.collect { |re|
+          !!(
+            title =~ re ||
+            Nokogiri::HTML(summary).content =~ re ||
+            Nokogiri::HTML(content).content =~ re
+          )
         }.inject(:|)
-      }
+      end
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
     def match_categories_all_words(match_string, reject = false)
       # One keyword must match for each word in match string
       words = (match_string.downcase || "").split
-      proc = Proc.new { |entry|
-        clean_categories = entry.categories.map { |c| c.downcase }
-        words.collect { |re|
-          # true if re matches one keyword exactly
-          clean_categories.include?(word)
-        }.inject(:&)
-      }
+      if categories && categories.size > 0
+        proc = Proc.new { |entry|
+          clean_categories = entry.categories.map { |c| c.downcase }
+          words.collect { |re|
+            # true if re matches one keyword exactly
+            clean_categories.include?(word)
+          }.inject(:&)
+        }
+      else
+        res = words.map { |w| Regexp.new(/\b#{w}/i) }
+        proc = Proc.new { |entry|
+          title, summary, content = cleaned_content(entry)
+          res.collect { |re|
+            !!(
+              title =~ re ||
+              Nokogiri::HTML(summary).content =~ re ||
+              Nokogiri::HTML(content).content =~ re
+            )
+          }.inject(:&)
+        }
+      end
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
@@ -162,8 +214,7 @@ module Feedzirra
 
     # any word
     def match_text_any_word(match_string, reject = false)
-      text = match_string.downcase || ""
-      words = text.split
+      words = (match_string.downcase || "").split
       res = words.map { |w| Regexp.new(/\b#{w}/i) }
       proc = Proc.new { |entry|
         title, summary, content = cleaned_content(entry)
@@ -179,8 +230,7 @@ module Feedzirra
     end
 
     def match_text_all_words(match_string, reject = false)
-      text = match_string.downcase || ""
-      words = text.split
+      words = (match_string.downcase || "").split
       res = words.map { |w| Regexp.new(/\b#{w}/i) }
       proc = Proc.new { |entry|
         title, summary, content = cleaned_content(entry)
