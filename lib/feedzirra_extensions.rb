@@ -88,16 +88,51 @@ module Feedzirra
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
-    def match_keyword_exact
+    def match_categories_exact(match_string, reject = false)
+      # One keyword must match phrase exactly
+      proc = Proc.new { |entry|
+        clean_categories = entry.categories.map(&:downcase)
+        clean_categories.include?(match_string)
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
-    def match_keyword
+    def match_categories(match_string, reject = false)
+      # One keyword must match phrase, match can be partial
+      re = Regexp.new(/\b#{match_string}\b/i)
+      proc = Proc.new { |entry|
+        clean_categories = entry.categories.map(&:downcase)
+        clean_categories.collect { |category|
+          !!(category =~ re)
+        }.inject(:|)
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
-    def match_keyword_any_word
+    def match_categories_any_word(match_string, reject = false)
+      # One keyword must match for any word in match string
+      words = (match_string.downcase || "").split
+      proc = Proc.new { |entry|
+        clean_categories = entry.categories.map(&:downcase)
+        words.collect { |word|
+          # true if re matches one keyword exactly
+          clean_categories.include?(word)
+        }.inject(:|)
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
-    def match_keyword_all_words
+    def match_categories_all_words(match_string, reject = false)
+      # One keyword must match for each word in match string
+      words = (match_string.downcase || "").split
+      proc = Proc.new { |entry|
+        clean_categories = entry.categories.map { |c| c.downcase }
+        words.collect { |re|
+          # true if re matches one keyword exactly
+          clean_categories.include?(word)
+        }.inject(:&)
+      }
+      reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
     # phrase, no word boundary
