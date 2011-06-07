@@ -68,6 +68,10 @@ def sample_wfw_feed
   load_sample("PaulDixExplainsNothingWFW.xml")
 end
 
+def multiple_author_feed
+  load_sample("Engadget.xml")
+end
+
 # only needed if testing time?
 # class Time
 #   def to_s

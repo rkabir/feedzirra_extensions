@@ -1,12 +1,6 @@
 require 'spec_helper'
 
 describe Feedzirra::FeedzirraParserExtensions do
-  #before (:each) do
-    #@class = Class.new do
-    #  include Feedzirra::FeedzirraParserExtensions
-    #end
-  #end
-  # @feed = Feedzirra::Feed.parse(sample_atom_feed)
   it "should include the extensions in parsed feeds" do
     atom = Feedzirra::Feed.parse(sample_atom_feed)
     itunes = Feedzirra::Feed.parse(sample_itunes_feed)
@@ -46,7 +40,18 @@ describe Feedzirra::FeedzirraParserExtensions do
       filtered.entries.first.title.should == "Mainframes in the Cloud?"
     end
   end
-  pending "should filter by author"
+  
+  describe "filtering by author" do
+    before (:all) do
+      @rss = Feedzirra::Feed.parse(multiple_author_feed)
+    end
+    
+    it "should match author exactly" do
+      filtered = @rss.match_author_exact("jacob schulman")
+      filtered.size.should == 2
+      filtered.entries.first.author.should == "Jacob Schulman"
+    end
+  end
   pending "should filter by keyword"
   pending "should filter by text"
   pending "should filter by images"
