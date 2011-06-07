@@ -59,10 +59,22 @@ describe Feedzirra::FeedzirraParserExtensions do
     pending "should have all words in any keyword"
     pending "should fall back to text"
   end
-  pending "should filter by text"
-  pending "should filter by images"
+  
+  describe "filtering by text" do
+    pending "should have phrase in text"
+    pending "should have one word in text"
+    pending "should have all words in text"
+  end
+
+  describe "filtering by images" do
+    pending "should have any image"
+    pending "should have image with absolute URL"
+  end
+
   pending "should filter by links"
   pending "should filter randomly"
+  
+  pending "map entries"
   
   describe "calling the correct methods when using where and arguments" do
   end
