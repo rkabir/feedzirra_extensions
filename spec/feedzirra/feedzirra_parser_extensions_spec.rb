@@ -23,21 +23,27 @@ describe Feedzirra::FeedzirraParserExtensions do
   end
   
   describe "filtering by title" do
-    before (:each) do
+    before (:all) do
+      # careful not to modify this
       @atom = Feedzirra::Feed.parse(sample_atom_feed)
     end
     
     it "should have phrase in title" do
       filtered = @atom.match_title("cloud computing")
       filtered.size.should == 1
+      filtered.entries.first.title.should == "Cloud Computing and Biomedical Research Roundtable in San Diego"
     end
     it "should have any word in title" do
       filtered = @atom.match_title_any_word("mainframe job")
       filtered.size.should == 2
+      # note that the html entity is converted
+      filtered.entries.first.title.should == "AWS Job: Architect & Designer Position in Turkey"
+      filtered.entries.last.title.should == "Mainframes in the Cloud?"
     end
     it "should have all words in title" do
       filtered = @atom.match_title_all_words("mainframe cloud")
       filtered.size.should == 1
+      filtered.entries.first.title.should == "Mainframes in the Cloud?"
     end
   end
   pending "should filter by author"
