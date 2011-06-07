@@ -52,7 +52,13 @@ describe Feedzirra::FeedzirraParserExtensions do
       filtered.entries.first.author.should == "Jacob Schulman"
     end
   end
-  pending "should filter by keyword"
+
+  describe "filtering by keyword" do
+    pending "should match one keyword exactly"
+    pending "should have one word in any keyword"
+    pending "should have all words in any keyword"
+    pending "should fall back to text"
+  end
   pending "should filter by text"
   pending "should filter by images"
   pending "should filter by links"
