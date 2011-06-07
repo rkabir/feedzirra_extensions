@@ -3,7 +3,7 @@ require 'nokogiri'
 require 'active_support'
 require 'sanitize'
 require 'uri'
-require 'readability'
+# require 'readability'
 
 # TODO: Override some parsers from feedzirra (see issues about gawker
 # permalinks on github)
@@ -385,6 +385,9 @@ module Feedzirra
         end
       end
       if options['readability']
+        # not implemented because johnson gem (which readability depends on)
+        # isn't building with ruby 1.9.2
+        raise NotImplementedError
         entries = entries.map do |entry|
           ge = GenericEntry.create_from_entry(entry)
           ge.content = Readability::Document.new(ge.content).content
