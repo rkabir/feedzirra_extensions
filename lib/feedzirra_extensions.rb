@@ -309,6 +309,15 @@ module Feedzirra
       if options['author']
         entries = match_author_exact(options['author'])
       end
+      if options['categories']
+        entries = match_categories(options['categories'])
+      end
+      if options['categories_any']
+        entries = match_categories_any_word(options['categories_any'])
+      end
+      if options['categories_all']
+        entries = match_categories_all_words(options['categories_all'])
+      end
       if options['has_image']
         entries = entries_with_images
       end
@@ -352,6 +361,15 @@ module Feedzirra
       end
       if options['author']
         entries = match_author_exact(options['author'], true)
+      end
+      if options['categories']
+        entries = match_categories(options['categories'], true)
+      end
+      if options['categories_any']
+        entries = match_categories_any_word(options['categories_any'], true)
+      end
+      if options['categories_all']
+        entries = match_categories_all_words(options['categories_all'], true)
       end
       if options['has_image']
         entries = entries_with_images(true)

@@ -152,15 +152,70 @@ describe Feedzirra::FeedzirraParserExtensions do
     filtered.size.should <= @rss.entries.size
   end
   
-  describe "calling the correct methods when using where and arguments" do
+  describe "calling the correct methods when using where_entries and arguments" do
     before(:all) do
       @rss = Feedzirra::Feed.parse(multiple_author_feed)
     end
     
-    pending "author"
-    pending "title"
-    pending "category"
-    pending "text"
+    it "author" do
+      @rss.should_receive(:match_author_exact).with("alvin")
+      filtered = @rss.where_entries({:author => "alvin"})
+    end
+    
+    it "title" do
+      @rss.should_receive(:match_title).with("Title")
+      filtered = @rss.where_entries({:title => "Title"})
+    end
+    
+    it "title_any" do
+      @rss.should_receive(:match_title_any_word).with("Title")
+      filtered = @rss.where_entries({:title_any => "Title"})
+    end
+    
+    it "title_all" do
+      @rss.should_receive(:match_title_all_words).with("Title")
+      filtered = @rss.where_entries({:title_all => "Title"})
+    end
+    
+    it "categories" do
+      @rss.should_receive(:match_categories).with("category")
+      filtered = @rss.where_entries({:categories => "category"})
+    end
+    
+    it "categories_any" do
+      @rss.should_receive(:match_categories_any_word).with("category")
+      filtered = @rss.where_entries({:categories_any => "category"})
+    end
+    
+    it "categories_all" do
+      @rss.should_receive(:match_categories_all_words).with("category")
+      filtered = @rss.where_entries({:categories_all => "category"})
+    end
+
+    it "text" do
+      @rss.should_receive(:match_text).with("Text")
+      filtered = @rss.where_entries({:text => "Text"})
+    end
+    
+    it "text_any" do
+      @rss.should_receive(:match_text_any_word).with("Text")
+      filtered = @rss.where_entries({:text_any => "Text"})
+    end
+    
+    it "text_all" do
+      @rss.should_receive(:match_text_all_words).with("Text")
+      filtered = @rss.where_entries({:text_all => "Text"})
+    end
+    
+    it "has_image" do
+      @rss.should_receive(:entries_with_images).with(no_args)
+      filtered = @rss.where_entries({:has_image => true})
+    end
+    
+    it "has_link" do
+      @rss.should_receive(:entries_with_links).with(no_args)
+      filtered = @rss.where_entries({:has_link => true})
+    end
     
     it "random" do
       @rss.should_receive(:entries_randomly)
@@ -168,15 +223,70 @@ describe Feedzirra::FeedzirraParserExtensions do
     end
   end
   
-  describe "calling the correct methods when using where_not and arguments" do
+  describe "calling the correct methods when using where_entries_not and arguments" do
     before(:all) do
       @rss = Feedzirra::Feed.parse(multiple_author_feed)
     end
     
-    pending "author"
-    pending "title"
-    pending "category"
-    pending "text"
+    it "author" do
+      @rss.should_receive(:match_author_exact).with("alvin", true)
+      filtered = @rss.where_entries_not({:author => "alvin"})
+    end
+
+    it "title" do
+      @rss.should_receive(:match_title).with("Title", true)
+      filtered = @rss.where_entries_not({:title => "Title"})
+    end
+    
+    it "title_any" do
+      @rss.should_receive(:match_title_any_word).with("Title", true)
+      filtered = @rss.where_entries_not({:title_any => "Title"})
+    end
+    
+    it "title_all" do
+      @rss.should_receive(:match_title_all_words).with("Title", true)
+      filtered = @rss.where_entries_not({:title_all => "Title"})
+    end
+    
+    it "categories" do
+      @rss.should_receive(:match_categories).with("category", true)
+      filtered = @rss.where_entries_not({:categories => "category"})
+    end
+    
+    it "categories_any" do
+      @rss.should_receive(:match_categories_any_word).with("category", true)
+      filtered = @rss.where_entries_not({:categories_any => "category"})
+    end
+    
+    it "categories_all" do
+      @rss.should_receive(:match_categories_all_words).with("category", true)
+      filtered = @rss.where_entries_not({:categories_all => "category"})
+    end
+
+    it "text" do
+      @rss.should_receive(:match_text).with("Text", true)
+      filtered = @rss.where_entries_not({:text => "Text"})
+    end
+    
+    it "text_any" do
+      @rss.should_receive(:match_text_any_word).with("Text", true)
+      filtered = @rss.where_entries_not({:text_any => "Text"})
+    end
+    
+    it "text_all" do
+      @rss.should_receive(:match_text_all_words).with("Text", true)
+      filtered = @rss.where_entries_not({:text_all => "Text"})
+    end
+    
+    it "has_image" do
+      @rss.should_receive(:entries_with_images).with(true)
+      filtered = @rss.where_entries_not({:has_image => true})
+    end
+    
+    it "has_link" do
+      @rss.should_receive(:entries_with_links).with(true)
+      filtered = @rss.where_entries_not({:has_link => true})
+    end
     
     it "random" do
       @rss.should_receive(:entries_randomly)
