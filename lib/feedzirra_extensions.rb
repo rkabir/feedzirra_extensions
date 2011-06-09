@@ -95,85 +95,81 @@ module Feedzirra
     def match_categories_exact(match_string, reject = false)
       # One keyword must match phrase exactly, don't care about word boundaries
       text = match_string.downcase
-      if categories && categories.size > 0
-        proc = Proc.new { |entry|
+      proc = Proc.new { |entry|
+        if entry.categories && entry.categories.size > 0
           clean_categories = entry.categories.map(&:downcase)
           clean_categories.include?(text)
-        }
-      else
-        # same as match_text_exact
-        proc = Proc.new { |entry|
+        else
           title, summary, content = cleaned_content(entry)
           title.include?(text) ||
             summary.include?(text) ||
             content.include?(text)
-        }
-      end
+        end
+      }
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
     def match_categories(match_string, reject = false)
       # One keyword must match phrase, match can be partial within a category
       re = Regexp.new(/\b#{match_string}\b/i)
-      if categories && categories.size > 0
-        proc = Proc.new { |entry|
+      proc = Proc.new { |entry|
+        if entry.categories && entry.categories.size > 0
           clean_categories = entry.categories.map(&:downcase)
           clean_categories.collect { |category|
             !!(category =~ re)
-          }.inject(:|)
-        }
-      else
-        # same as match_text
-        proc = Proc.new { |entry|
+            }.inject(:|)
+        else
+          # same as match_text
           title, summary, content = cleaned_content(entry)
           !!(title =~ re) ||
             !!(Nokogiri::HTML(summary).content =~ re) ||
             !!(Nokogiri::HTML(content).content =~ re)
-        }
-      end
+        end
+      }
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
     def match_categories_any_word(match_string, reject = false)
       # One keyword must match for any word in match string
+      # Match can be partial within a category
       words = (match_string.downcase || "").split
-      if categories && categories.size > 0
-        proc = Proc.new { |entry|
+      res = words.map { |w| Regexp.new(/\b#{w}/i) }
+      proc = Proc.new { |entry|
+        if entry.categories && entry.categories.size > 0
           clean_categories = entry.categories.map(&:downcase)
-          words.collect { |word|
-            # true if re matches one keyword exactly
-            clean_categories.include?(word)
+          res.collect { |re|
+            # true if re matches one keyword partially
+            clean_categories.map { |cc| cc =~ re }.inject(:|)
           }.inject(:|)
-        }
-      else
-        # same as match_text_any_word
-        res = words.map { |w| Regexp.new(/\b#{w}/i) }
-        title, summary, content = cleaned_content(entry)
-        res.collect { |re|
-          !!(
-            title =~ re ||
-            Nokogiri::HTML(summary).content =~ re ||
-            Nokogiri::HTML(content).content =~ re
-          )
-        }.inject(:|)
-      end
+        else
+          # same as match_text_any_word
+          title, summary, content = cleaned_content(entry)
+          res.collect { |re|
+            !!(
+              title =~ re ||
+              Nokogiri::HTML(summary).content =~ re ||
+              Nokogiri::HTML(content).content =~ re
+            )
+          }.inject(:|)
+        end
+      }
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 
     def match_categories_all_words(match_string, reject = false)
       # One keyword must match for each word in match string
       words = (match_string.downcase || "").split
-      if categories && categories.size > 0
-        proc = Proc.new { |entry|
+      res = words.map { |w| Regexp.new(/\b#{w}/i) }
+      proc = Proc.new { |entry|
+        if entry.categories && entry.categories.size > 0
           clean_categories = entry.categories.map { |c| c.downcase }
-          words.collect { |re|
-            # true if re matches one keyword exactly
-            clean_categories.include?(word)
+          res.collect { |re|
+            # true if re matches one keyword partially
+            clean_categories.map { |cc| cc =~ re }.inject(:|)
+          # but then you need to have a partial match for all res
           }.inject(:&)
-        }
-      else
-        res = words.map { |w| Regexp.new(/\b#{w}/i) }
-        proc = Proc.new { |entry|
+        else
+          # same as match_text_all_words
           title, summary, content = cleaned_content(entry)
           res.collect { |re|
             !!(
@@ -182,8 +178,8 @@ module Feedzirra
               Nokogiri::HTML(content).content =~ re
             )
           }.inject(:&)
-        }
-      end
+        end
+      }
       reject ? self.entries.reject(&proc) : self.entries.find_all(&proc)
     end
 

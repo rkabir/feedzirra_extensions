@@ -53,10 +53,27 @@ describe Feedzirra::FeedzirraParserExtensions do
     end
   end
 
-  describe "filtering by keyword" do
-    pending "should match one keyword exactly"
-    pending "should have one word in any keyword"
-    pending "should have all words in any keyword"
+  describe "filtering by category" do
+    before (:all) do
+      @rss = Feedzirra::Feed.parse(multiple_author_feed)
+    end
+    it "should match one category exactly" do
+      filtered = @rss.match_categories_exact("home screen")
+      filtered.size.should == 1
+    end
+    it "should match as phrase in any category" do
+      # Use 3-word category
+      filtered = @rss.match_categories("combat evolved")
+      filtered.size.should == 1
+    end
+    it "should have one word in any category" do
+      filtered = @rss.match_categories_any_word("screen")
+      filtered.size.should == 3
+    end
+    it "should have all words in any category" do
+      filtered = @rss.match_categories_all_words("screen home")
+      filtered.size.should == 1
+    end
     pending "should fall back to text"
   end
   
