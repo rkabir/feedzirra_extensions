@@ -169,6 +169,10 @@ describe Feedzirra::FeedzirraParserExtensions do
   end
   
   describe "calling the correct methods when using where_not and arguments" do
+    before(:all) do
+      @rss = Feedzirra::Feed.parse(multiple_author_feed)
+    end
+    
     pending "author"
     pending "title"
     pending "category"
