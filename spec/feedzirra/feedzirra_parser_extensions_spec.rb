@@ -157,12 +157,27 @@ describe Feedzirra::FeedzirraParserExtensions do
       @rss = Feedzirra::Feed.parse(multiple_author_feed)
     end
     
+    pending "author"
+    pending "title"
+    pending "category"
+    pending "text"
+    
     it "random" do
       @rss.should_receive(:entries_randomly)
       filtered = @rss.where_entries({:random => true})
     end
   end
+  
   describe "calling the correct methods when using where_not and arguments" do
+    pending "author"
+    pending "title"
+    pending "category"
+    pending "text"
+    
+    it "random" do
+      @rss.should_receive(:entries_randomly)
+      filtered = @rss.where_entries_not({:random => true})
+    end
   end
   
   pending "map entries"
