@@ -19,20 +19,24 @@ module Feedzirra
     ### Method to find base url
     def base_url
       # could use xml:base, but i think that data is lost
-      # TODO: Should be a URI object
-      url || feed_url
+      # url and feed_url should always be a string
+      URI.parse(url || feed_url)
     end
 
     def base_url_merge(uri_or_string)
-      self.base_url.merge(uri_or_string)
+      if uri_or_string.is_a?(URI)
+        self.base_url.merge(uri_or_string)
+      else
+        self.base_url.merge(URI.parse(uri_or_string))
+      end
     end
 
     def entries_with_absolute_img_src
       entries.map do |e|
         nodes = Nokogiri::HTML.parse(e.content)
-        ge = GenericEntry.create_from_entry(e)
-        html.css("img").each do |node|
-          node['src'] = base_url_merge(node['src']) if node['src']
+        ge = Feedzirra::Parser::GenericEntry.create_from_entry(e)
+        nodes.css("img").each do |node|
+          node['src'] = base_url_merge(node['src']).to_s if node['src']
         end
         # Might have to mark this as safe on the rails side?
         ge.content = nodes.to_s
@@ -93,7 +97,8 @@ module Feedzirra
     end
 
     def match_categories_exact(match_string, reject = false)
-      # One keyword must match phrase exactly, don't care about word boundaries
+      # One keyword must match phrase exactly
+      # Fall back to text doesn't care about word boundaries
       text = match_string.downcase
       proc = Proc.new { |entry|
         if entry.categories && entry.categories.size > 0
@@ -119,7 +124,7 @@ module Feedzirra
             !!(category =~ re)
             }.inject(:|)
         else
-          # same as match_text
+          # ALMOST the same as match_text--phrase must start/end with word boundaries
           title, summary, content = cleaned_content(entry)
           !!(title =~ re) ||
             !!(Nokogiri::HTML(summary).content =~ re) ||
@@ -272,6 +277,7 @@ module Feedzirra
       proc = Proc.new { |entry|
         Random.rand < frequency
       }
+      self.entries.find_all(&proc)
     end
 
     # this is implicitly an AND if you include

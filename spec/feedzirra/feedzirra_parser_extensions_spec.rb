@@ -56,6 +56,7 @@ describe Feedzirra::FeedzirraParserExtensions do
   describe "filtering by category" do
     before (:all) do
       @rss = Feedzirra::Feed.parse(multiple_author_feed)
+      @no_keywords = Feedzirra::Feed.parse(sample_rdf_feed)
     end
     it "should match one category exactly" do
       filtered = @rss.match_categories_exact("home screen")
@@ -74,22 +75,82 @@ describe Feedzirra::FeedzirraParserExtensions do
       filtered = @rss.match_categories_all_words("screen home")
       filtered.size.should == 1
     end
-    pending "should fall back to text"
+    it "should fall back to substring in text when matching exactly" do
+      filtered = @no_keywords.match_categories_exact("plies the lessons from Small")
+      @no_keywords.entries.each do |entry|
+        entry.categories.size.should == 0
+      end
+      filtered.size.should == 1
+    end
+    it "should fall back to phrase in text when matching phrase in category" do
+      filtered = @no_keywords.match_categories("applies the lessons from Smalltalk")
+      @no_keywords.entries.each do |entry|
+        entry.categories.size.should == 0
+      end
+      filtered.size.should == 1
+    end
+    it "should fall back to one word in text when matching one word in category" do
+      filtered = @no_keywords.match_categories_any_word("rabbit smalltalk")
+      @no_keywords.entries.each do |entry|
+        entry.categories.size.should == 0
+      end
+      filtered.size.should == 6
+    end
+    it "should fall back to all words in text when matching all words in category" do
+      filtered = @no_keywords.match_categories_all_words("lars javascript smalltalk")
+      @no_keywords.entries.each do |entry|
+        entry.categories.size.should == 0
+      end
+      filtered.size.should == 1
+    end
   end
   
   describe "filtering by text" do
-    pending "should have phrase in text"
-    pending "should have one word in text"
-    pending "should have all words in text"
+    before (:all) do
+      @rss = Feedzirra::Feed.parse(multiple_author_feed)
+    end
+    it "should have substring in text" do
+      filtered = @rss.match_text_exact("ew of demo vid")
+      filtered.size.should == 1
+    end
+    it "should have phrase in text" do
+      filtered = @rss.match_text("slew of demo videos")
+      filtered.size.should == 1
+    end
+    it "should have one word in text" do
+      filtered = @rss.match_text_any_word("ipod kinect")
+      filtered.size.should == 8
+    end
+    it "should have all words in text" do
+      filtered = @rss.match_text_all_words("slew mission")
+      filtered.size.should == 1
+    end
   end
 
-  describe "filtering by images" do
-    pending "should have any image"
-    pending "should have image with absolute URL"
+  it "should filter entries with images" do
+    @rdf = Feedzirra::Feed.parse(sample_rdf_feed)
+    filtered = @rdf.entries_with_images
+    filtered.size.should == 1
   end
 
-  pending "should filter by links"
-  pending "should filter randomly"
+  it "should convert images to use absolute URLs" do
+    # TODO: Ideally should test on a feed with non-absolute images
+    @rdf = Feedzirra::Feed.parse(sample_rdf_feed)
+    mapped = @rdf.entries_with_absolute_img_src
+    # TODO: Not sure what goes here
+  end
+
+  it "should filter entries with links" do
+    @rdf = Feedzirra::Feed.parse(sample_rdf_feed)
+    filtered = @rdf.entries_with_links
+    filtered.size.should == 8
+  end
+  
+  it "should filter randomly" do
+    @rss = Feedzirra::Feed.parse(multiple_author_feed)
+    filtered = @rss.entries_randomly(0.5)
+    filtered.size.should <= @rss.entries.size
+  end
   
   pending "map entries"
   
