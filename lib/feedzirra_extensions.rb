@@ -1,6 +1,6 @@
 require 'feedzirra'
 require 'nokogiri'
-require 'active_support'
+require 'active_support/core_ext/hash'
 require 'sanitize'
 require 'uri'
 # require 'readability'

@@ -152,10 +152,18 @@ describe Feedzirra::FeedzirraParserExtensions do
     filtered.size.should <= @rss.entries.size
   end
   
-  pending "map entries"
-  
   describe "calling the correct methods when using where and arguments" do
+    before(:all) do
+      @rss = Feedzirra::Feed.parse(multiple_author_feed)
+    end
+    
+    it "random" do
+      @rss.should_receive(:entries_randomly)
+      filtered = @rss.where_entries({:random => true})
+    end
   end
   describe "calling the correct methods when using where_not and arguments" do
   end
+  
+  pending "map entries"
 end
